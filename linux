@@ -1,0 +1,171 @@
+=============================Linux shell脚本攻略=========================
+1、大于号：将一条命令执行结果（标准输出，或者错误输出，本来都要打印到屏幕上面的）重定向其它输出设备（文件，打开文件操作符，或打印机等等）
+　　小于号：命令默认从键盘获得的输入，现改成从文件，或者其它打开文件以及设备输入
+>> 追加文件内容
+> 文件不存在创建，存在覆盖里面的内容。
+< 小于号：  mysql -u root -p -h test < test.sql 导入数据(把数据导入mysql中)
+
+2、uniq命令要求必须先sort.
+
+3.vim对列进行操作: https://jingyan.baidu.com/article/39810a23884ce4b636fda6fa.html
+
+====================================================================
+２、cd - 当前目录与最后一个目录来回切换。
+    cd 不加任何参数，默认就是进入home目录。
+
+３、rm -rv /conf   会显示出删除了目录下哪些文件
+
+４、ln test.txt t.txt 建一个硬链接，其中一个文件被修改，另个也修改了。删除其中一个文件，另一个也可以用，只有把所有的硬链接删掉之后，文件才被删掉。　
+    ln -s t.txt a.txt 建立一个软连接，只是建立了一个符号，删掉源文件t.txt，软连接会损坏。删掉软链接，只是删除一个符号，不会影响真正的文件。
+
+５、df --> disk free 　表示磁盘占用空间的情况
+    du表示　disk usage. 表示文件所占磁盘的大小
+	du -sh * 表示列出当前目录的一级的所有目录。*表示通配符。
+
+６、ps -Lf  列出线程信息。
+
+1、du -ah --max-depth=1　查看当前目录下文件占用磁盘最大的文件。
+
+２、ls -lhsrS　s表示sort，r表示reverse，Ｓ表示Size 当前目录下按照文件大小逆序排序列出。
+    ls -lhsrt 表示按照时间倒序排序
+    ls -a 可以查看一个目录下的隐藏文件
+
+３.发现可能是打印大量异常栈导致日志文件大，
+    统计当前日志文件各异常出现次数；
+        grep "Exception" error.log | sort | uniq -c | sort -n -k1
+        解释命令如下：
+            sort命令详解：https://www.cnblogs.com/51linux/archive/2012/05/23/2515299.html
+            uniq命令详解：http://www.runoob.com/linux/linux-comm-uniq.html
+            wc -l 查看行号
+            wc -c 查看字节数
+            grep "Exception" error.log　找到error.log文件中有Exception的行
+            sort 排序
+            uniq -c　去重，-c或--count 在每列旁边显示该行重复出现的次数，注意：一般与sort连用，因为这个命令只能统计相互挨着的行。
+            sort -n -k1　参数解释：-n　按照数字排序，-k1表示第一列(k 代表key 键)　　参照上面网址。
+    如何查看所有异常和异常栈；
+        grep参数解释：https://blog.csdn.net/u011003120/article/details/52185356
+        grep (global search regular expression(RE) and print out the line,
+        全面搜索正则表达式并把行打印出来)是一种强大的文本搜索工具，它能使用正则表达式搜索文本，并把匹配的行打印出来。
+        
+        grep -A 10 “java.lang.IllegalArgumentException”
+            命令解释：-A 就是文件，找到匹配“java.lang.IllegalArgumentException”字串的行，显示该行后后面紧跟的１０行。
+    查看某异常首次出现的时间；
+        grep -B 1 "java.lang.IllegalArgumentException" error.log | head -n 2
+
+３、有些情况删除了某些文件(比如error.log文件)，但是磁盘空间没被释放？
+    lsof | grep deleted
+    echo "" > error.log
+    参数解释：lsof 表示list open files，列出当前系统打开的文件。grep deleted找到已经删除的文件。
+    echo "" error.log　把""添加进该文件即可删除。
+
+４、问题不容易定位，在服务器端的原始文件占用空间得删除，如何把日志文件copy到自己电脑上？
+方式一：
+    python -m SimpleHTTPServer解释：https://blog.csdn.net/why19940926/article/details/62054757/
+    应用场景：比如你想快速共享Linux系统的某个目录给整个项目团队，在一分钟之内。Python自带了一个WEB服务器 SimpleHTTPServer。
+    
+    python -m SimpleHTTPServer 8888
+    curl http://servername:8888/error.log　在浏览器中访问这个url，就可以下载这个文件(这个文件在server端的当前目录)。
+    参数解释：
+    8888:表示端口号。详细可以参照网址。
+方式二：
+    nc命令详解：https://www.cnblogs.com/nmap/p/6148306.html
+    server: nc -l 8888 < filename　　// 从server下载文件
+    local: nc server  8888 > filename　　// 从本地上传文件到server上
+
+5、发现问题４删除错了文件，需要复原，把本地日志文件copy到服务器上？
+    server:nc -l 8888 > filename
+    local:nc server  8888 < filename
+
+６、本地有jdk7、jdk8两个sdk，需要切换，创建软链接指向某个版本文件夹？
+    mkdir jdk8
+    ln -s jdk8 jdk
+
+７、服务器tomcat实例由tomcat:tomcat运行，需要在服务器新增一个文件夹，修改其owner和group为tomcat:tomcat？
+    chown  tomcat:tomcat ./works -R
+
+８、用python -m SimpleHTTPServer 8888启用简易http服务时，发现8888监听端口被占用，如何查看被什么命令或者服务占用？
+    注意：用户不一样看到的进程信息是不一样的。比如root,和wxi.wang看到的信息不一致。例如：mysqld只能使用root用户看到。
+    netstat详解：https://www.cnblogs.com/xieshengsen/p/6618993.html
+    ps详解：https://www.cnblogs.com/wxgblogs/p/6591980.html
+    可以使用如下命令：
+        １、sudo lsof -i:3306　可以查看3306被哪个进程占用。
+        ２、sudo netstat -nptl | grep 3306 
+        3、ps -aux | grep 3306　＝＝＝ -a表示all,-u表示以用户的进程,-x与-a连用会列出更多详细信息。
+
+９、线上服务器一般有多台，现有一个badcase的qtraceId，如何快速在多台服务器找到此badcase(错误)的日志？
+    for i in {1..3};do ssh server "grep info.log";done;
+        atnodes ‘grep info.log’ server
+    使用atnodes命令：可以在集群上运行指定命令
+    tonodes：上传文件到集群上，然后可以通过atnodes运行这个文件脚本。
+
+10、linux管道的原理如下：
+    １、数据只能由一个进程流向另一个进程（其中一个读管道，一个写管道）；如果要进行双工通信，需要建 立两个管道
+    ２、管道只能用于父子进程或者兄弟进程间通信。，也就是说管道只能用于具有亲缘关系的进程间通信。
+    注意：从管道读数据是一次性操作，数据一旦被读，它就从管道中被抛弃，释放空间以便写更多的数据。
+
+11、find命令：
+    find . -name "*.xml" 查看当前目录下的所有xml文件。
+    find /home -mtime -3 -type f 表示找到home目录下三天之前修改的文件。-mtime表示文件最后的访问时间
+    find /home -mtime -3 -type f | xargs -0 rm -rf 表示找到home目录下三天之前修改的文件然后删掉
+
+12、whereis ls 表示找到可执行文件ls在哪儿
+    which ls 也可以有相同的作用。
+
+13、chown change owner 改变所属用户
+    chgrp  change group 改变所属用户组
+    chmod change mode 改变权限
+
+14、文本操作：
+    cat 
+    head -n2　显示文件前2行
+    tail -n2 显示文件末尾２行
+    tail -f a.log 可以查看实时的日志信息，就是文件的内容仍然在不断的写入。
+    less 查看文件内容(一般是比较大的文件)　进入文件内容　操作如下：
+        shfit + g 可以调到文件末尾
+        g 可以调到文件开始
+        80 + g　，就可以跳到80行
+        /Excption 可以查看关键字，按n可以查看下一个，按shift+n跳到上一个匹配。
+        ctrl+u 上翻半页
+        ctrl+d 下翻半页
+        q 退出来
+        
+15、crontab详解:可以定时执行一些脚本文件。
+    https://www.cnblogs.com/aminxu/p/5993769.html
+
+16、rsync：同步，可以把本机的代码同步到开发机上。
+
+17、iostat: 可以查看io情况
+
+18、vmstat：可以查看虚拟内存情况。
+===============================终端快捷键=========================
+    光标移动：
+        ctrl + a 移动到当前行的开头
+        ctrl + e 移动到当前行的结尾
+        ctrl+左箭头/右箭头:左一个单词，右移一个单词
+    删除or剪切：
+        ctrl+w:剪切光标所在处之前的一个词（以空格、标点等为分隔符）
+        Ctrl+u 剪切命令行中光标所在处之前的所有字符（不包括自身）
+        Ctrl+k 剪切命令行中光标所在处之后的所有字符（包括自身）
+        Ctrl+& 恢复快捷键删除的内容
+    粘贴：
+        ctrl + shift + v
+    历史命令：
+        ctrl + r,可以匹配搜索
+===============================vim常用快捷键======================
+跳转：
+    文件开头 gg
+    末尾G
+    ctrl+u 上翻半页
+    ctrl+d 下翻半页
+    b e 单词头，单词尾
+    w 下一单词
+修改：
+    复制 y+范围
+    赋值当前行 yy
+    剪贴字符 x
+    剪贴当前行 dd
+vim 命令模式　
+    ! ls ~　可以执行外部命令。
+    w !sodu tee %  可以在sudo权限修改文件
+    /test 可以查找"test"字符串, n 键表示下一个, N 表示匹配上一个.
+============================================================

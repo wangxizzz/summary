@@ -1,13 +1,12 @@
-### curl命令介绍：
+## curl命令介绍：
 1.curl --referer Referer_URL target_URL : 参照页(referer)是位于HTTP头的一个字段，用来标识用户是从哪个页面调到当前页面的。
-
 2.curl http://www.baidu.com --cookie-jar baidu.cookie 把访问百度的cookie记录到本地文件。
 
 3.curl -H "Accept-language: en" http://www.baidu.com -H "Host: www.baidu.com" --user-agent "Mozilla/5.0" -H 表示增加Header, 可以增加多个Header. --user-agent表示用户代理。
 
 4.curl -I http://www.baidu.com  -I 参数或者--head表示只打印HTTP头部信息。
 
-### 网络管理:
+## 网络管理:
 1.**网关**:一个网络中的设备如果想同另一个网络中的设备进行通信,就需要借助某个同时连接了两个网络的设备。这个特殊的设备被称为网关,它的作用是在不同的网络中转发分组.
 
 2.route -n 可以以数字的形式查看由操作系统维护的路由表
@@ -29,4 +28,64 @@
 - lftp username@ftphost 连接fpt服务器
 - get fileName 从ftp服务器下载文件
 - put fileName 上传文件
-### 磁盘管理
+## 磁盘管理
+1.du : disk usage
+- du -a dirName 可递归统计该文件夹下文件所占磁盘空间大小.
+- du fileName 可以统计文件所占磁盘空间的大小
+- du dirName 可以递归统计该文件夹下文件所占磁盘空间大小.
+- du -ch dirName 可以统计该文件夹的总大小
+- du -s 统计文件夹总大小 -s(summarize)
+- du -h --exclude "*.pdf" FILES documents/ 排除document文件夹下所有的pdf文件,统计其他文件
+- du -k或-m 以k或m为单位统计文件大小.
+
+2.找出指定目录的最大10个文件
+> 方法一　：　du -ah documents/ | sort -nrk 1 | head -n 10  
+> 方法二　：　find . -type f -exec du -k {} \; | sort -nrk 1 | head
+
+3.df 提供磁盘可用空间信息
+
+4.time ls 可以知道ls命令执行的时间
+
+5.w/who 可以查看登录用户的信息
+
+## 对系统进程的管理
+1..ps -efo pid,comm,pcpu | head -n 5 可以查看指定参数的进程信息
+- -e : 代表every
+- -f :　full 显示多列信息
+- -o : 可以指定列出的参数
+
+-o 参数可以为:
+|参数|描述|
+|--|--|
+|pcpu|CPU占用率
+pid|进程ID
+ppid| 父进程ID
+pmem |内存使用率
+comm |可执行文件名
+cmd |简单命令 1
+user |启动进程的用户
+nice |优先级
+time |累计的CPU时间
+etime |进程启动后流逝的时间
+tty |所关联的TTY设备
+euid |有效用户ID
+stat |进程状态
+
+2.对ps列出来的信息进行具体的排序:  
+可以用 --sort 将 ps 命令的输出根据特定的列进行排序。在参数前加上 + (升序)或 - (降序)
+来指定排序方式:  
+ps [OPTIONS] --sort -paramter1,+parameter2,parameter3..  
+例子: ps -eo comm,pcpu --sort -pcpu | head
+
+3.**线程信息**:
+- ps -eLf --sort -nlwp | head 该命令列出了线程数最多的10个进程
+    - nlwp 表示进程的线程数量.
+
+4.which 、 whereis 、 file 、 whatis
+- which ls 列出ls命令的位置
+- echo $PATH 查看环境变量
+- whereis ls : 与which类似
+- file : 可以查看文件类型
+- whatis ls 
+
+5.
