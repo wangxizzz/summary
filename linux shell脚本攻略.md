@@ -24,4 +24,9 @@
 - g 指定从 "IP地址/子网掩码"记法或者"IP地址范围"记法中生成一组IP地址
 
 > fping -a 100.81.138.65 100.81.138.70 100.81.138.712
+
+6.lftp:
+- lftp username@ftphost 连接fpt服务器
+- get fileName 从ftp服务器下载文件
+- put fileName 上传文件
 ### 磁盘管理
