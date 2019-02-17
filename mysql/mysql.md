@@ -1,11 +1,11 @@
-=======================建表语句
-create table t_user(
-id int unsigned primary key auto_increment not null comment '主键id',
-username varchar(20) not null comment '用户名',
-password varchar(50) not null comment '密码',
-nick_name varchar(20) not null comment '昵称',
-update_time datetime not null ```default CURRENT_TIMESTAMP``` comment '数据最后更新时间'
-)ENGINE = InnoDB DEFAULT CHARSET = utf8 COMMENT '用户信息表';
+=======================建表语句  
+create table t_user(  
+id int unsigned primary key auto_increment not null comment '主键id',  
+username varchar(20) not null comment '用户名',  
+password varchar(50) not null comment '密码',  
+nick_name varchar(20) not null comment '昵称',  
+update_time datetime not null ```default CURRENT_TIMESTAMP``` comment '数据最后更新时间'  
+)ENGINE = InnoDB DEFAULT CHARSET = utf8 COMMENT '用户信息表';  
 
 **插入数据：insert into t_user(username, password, nick_name) values('wangxi', '12345', 'xier')**   
 ```如果直接不写列名的话，就是全列匹配，就无法用到自增与时间戳的默认生成了。```
