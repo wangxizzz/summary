@@ -14,6 +14,12 @@ https://blog.csdn.net/mst1010/article/details/78589059
 - select * from user limit  param1 ;    limit + 参数    要获取的数据条数 (从第一条数据开始)
 - select * from user limit param1  offset param2 ;  从（param2+1）条数据开始，取 param1条数据
 
+6.springmvc的拦截器总结：
+https://jinnianshilongnian.iteye.com/blog/1670856
+
+7.spring mvc Interceptor 返回json数据
+https://blog.csdn.net/Reminisce_man/article/details/76546371
+
 **错误总结：**
 - 03-07：
     - product-service工程发布测试环境，在checkurl那一步卡住了，后来差日志知道是mybatis报错引起的。通过到机器上看日志 less ?Exception 匹配最后一个，n键调到上一个。
