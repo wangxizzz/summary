@@ -10,15 +10,21 @@
 4.jsonNode:
 https://blog.csdn.net/mst1010/article/details/78589059
 
-5.pgsql的分页语句：
+5.pgsql的分页语句：  
 - select * from user limit  param1 ;    limit + 参数    要获取的数据条数 (从第一条数据开始)
 - select * from user limit param1  offset param2 ;  从（param2+1）条数据开始，取 param1条数据
 
-6.springmvc的拦截器总结：
+6.springmvc的拦截器总结：  
 https://jinnianshilongnian.iteye.com/blog/1670856
 
-7.spring mvc Interceptor 返回json数据
+7.spring mvc Interceptor 返回json数据  
 https://blog.csdn.net/Reminisce_man/article/details/76546371
+
+8.ImmutableMap:  
+https://blog.csdn.net/anningzhu/article/details/77339048
+
+9.幂等性：  
+https://www.cnblogs.com/javalyy/p/8882144.html
 
 **错误总结：**
 - 03-07：
