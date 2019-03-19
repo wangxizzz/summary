@@ -31,6 +31,21 @@
 
 5.**nettyTCP粘包/拆包解码器** P113
 - LineBasedFrameDecoder + StringDecoder : 这两个组合就是按行切换的文本解码器。(\n, \r\n)
+- DelimiterBasedFrameDecoder : 自定义特殊的分隔符作为消息的结束标志
+- FixedLengthFrameDecoder : 消息长度固定，累计读取到长度总和为LEN的报文后,就认为读到一个消息。
+
+6.**Java对象编解码技术**
+- socket : 描述为: IP + 端口号  
+- **socket是什么？**
+    - 实际上socket是对TCP/IP协议的封装，它的出现只是使得程序员更方便地使用TCP/IP协议栈而已。socket本身并不是协议，它是应用层与TCP/IP协议族通信的中间软件抽象层，是一组调用接口（TCP/IP网络的API函数）。
+    - “TCP/IP只是一个协议栈，就像操作系统的运行机制一样，必须要具体实现，同时还要提供对外的操作接口。 
+　　这个就像操作系统会提供标准的编程接口，比如win32编程接口一样。 
+　　TCP/IP也要提供可供程序员做网络开发所用的接口，这就是Socket编程接口。”
+- Java对象编解码技术：当进行远程跨进程服务调用时，需要把被传输的Java对象编码为字节数组或者ByteBuffer对象。而当远程服务读取到字节数组或者ByteBuffer对象时，需要将它解码为发送时的Java对象。
+
+7.**Java NIO中的API详解**
+- remaining():
+- flip():
 - 
 
 **ctrl c , ctrl v时，系统做了什么？**  
