@@ -26,6 +26,13 @@ https://blog.csdn.net/anningzhu/article/details/77339048
 9.幂等性：  
 https://www.cnblogs.com/javalyy/p/8882144.html
 
+10.You have not concluded your merge (MERGE_HEAD exists). Exiting because of unfinished merge.  
+```java
+git merge --abort
+
+git reset --merge
+```
+
 **错误总结：**
 - 03-07：
     - product-service工程发布测试环境，在checkurl那一步卡住了，后来差日志知道是mybatis报错引起的。通过到机器上看日志 less ?Exception 匹配最后一个，n键调到上一个。
