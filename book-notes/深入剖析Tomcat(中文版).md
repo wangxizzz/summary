@@ -4,4 +4,8 @@
 - 创建一个response来响应用户的请求；
 - 调用Servlet中的service方法，传入request和response对象，Servlet从request中读取数据，然后通过response返回给客户端。
 
-2、
+2、文件句柄：在文件I/O中，要从一个文件读取数据，应用程序首先要调用操作系统函数并传送文件名，并选一个到该文件的路径来打开文件。该函数取回一个顺序号，即文件句柄（file handle）。linux内核对对于外设的操作都看作是文件操作。
+
+3.在servlet容器中，每次请求servlet都会载入响应的serevlet类。
+
+4.
