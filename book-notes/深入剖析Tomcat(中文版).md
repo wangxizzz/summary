@@ -25,4 +25,26 @@
 
 ```
 
-5.
+5.Tomcat中门面类模式：  
+- 样例代码参照：https://github.com/wangxizzz/Design-pattern  
+- 在Tomcat中的应用：  
+
+**贴出HttpServletRequest源码**
+```java
+/**
+ * Facade class that wraps a Coyote request object.
+ * All methods are delegated to the wrapped request.
+ *
+ * @author Craig R. McClanahan
+ * @author Remy Maucherat
+ */
+@SuppressWarnings("deprecation")  // 注解表示消除警告
+public class RequestFacade implements HttpServletRequest {
+
+public interface HttpServletRequest extends ServletRequest
+
+ServletRequest是底层接口
+```
+HttpServletResponse与HttpServletRequest的外观模式相同。
+
+6.
