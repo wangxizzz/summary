@@ -49,4 +49,48 @@ HttpServletResponse与HttpServletRequest的外观模式相同。
 
 6.在兼容servlet2.3和2.4的规范中，连接器必须负责创建HttpServletRequest和HttpServletResponse实例，然后通过参数传递到service().
 
-7.
+7.Tomcat中的单例模式：  
+**StringManager**：Tomcat把错误消息存储在properties文件中，而每个properties文件都是用一个StringManager的实例来处理。  
+StringManager单例代码如下：
+```java
+// 提供static方法，在外面获取StringManager实例
+public static final synchronized StringManager getManager(String packageName) {
+    StringManager mgr = managers.get(packageName);
+    if (mgr == null) {
+        mgr = new StringManager(packageName);
+        managers.put(packageName, mgr);
+    }
+    return mgr;
+}
+
+// 构造函数private
+private StringManager(String packageName) {
+    String bundleName = packageName + ".LocalStrings";
+    ResourceBundle tempBundle = null;
+    try {
+        tempBundle = ResourceBundle.getBundle(bundleName, Locale.getDefault());
+    } catch( MissingResourceException ex ) {
+        // Try from the current loader (that's the case for trusted apps)
+        // Should only be required if using a TC5 style classloader structure
+        // where common != shared != server
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        if( cl != null ) {
+            try {
+                tempBundle = ResourceBundle.getBundle(
+                        bundleName, Locale.getDefault(), cl);
+            } catch(MissingResourceException ex2) {
+                // Ignore
+            }
+        }
+    }
+    // Get the actual locale, which may be different from the requested one
+    if (tempBundle != null) {
+        locale = tempBundle.getLocale();
+    } else {
+        locale = null;
+    }
+    bundle = tempBundle;
+}
+```
+
+8.
