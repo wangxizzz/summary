@@ -43,8 +43,10 @@ public class RequestFacade implements HttpServletRequest {
 
 public interface HttpServletRequest extends ServletRequest
 
-ServletRequest是底层接口
+ServletRequest是顶层接口
 ```
 HttpServletResponse与HttpServletRequest的外观模式相同。
 
-6.
+6.在兼容servlet2.3和2.4的规范中，连接器必须负责创建HttpServletRequest和HttpServletResponse实例，然后通过参数传递到service().
+
+7.
