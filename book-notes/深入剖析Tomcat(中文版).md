@@ -25,7 +25,7 @@
 
 ```
 
-5.Tomcat中门面类模式：  
+5.**Tomcat中门面类模式：**  
 - 样例代码参照：https://github.com/wangxizzz/Design-pattern  
 - 在Tomcat中的应用：  
 
@@ -40,20 +40,37 @@
  */
 @SuppressWarnings("deprecation")  // 注解表示消除警告
 public class RequestFacade implements HttpServletRequest {
+// Request和RequestFacade实现相同的接口，因此Request的门面类是RequestFacade.
+public class Request implements HttpServletRequest {
 
 public interface HttpServletRequest extends ServletRequest
 
 ServletRequest是顶层接口
 ```
+```在RequestFacade中，被包装的类是Request```
+```java
+/**
+* Construct a wrapper for the specified request.
+*
+* @param request The request to be wrapped
+*/
+public RequestFacade(Request request) {
+
+    this.request = request;
+
+}
+```
+
 HttpServletResponse与HttpServletRequest的外观模式相同。
 
 6.在兼容servlet2.3和2.4的规范中，连接器必须负责创建HttpServletRequest和HttpServletResponse实例，然后通过参数传递到service().
 
-7.Tomcat中的单例模式：  
+7.**Tomcat中的单例模式：**  
 **StringManager**：Tomcat把错误消息存储在properties文件中，而每个properties文件都是用一个StringManager的实例来处理。  
 StringManager单例代码如下：
 ```java
 // 提供static方法，在外面获取StringManager实例
+// 单例模式的写法：直接在方法上加synchronized.
 public static final synchronized StringManager getManager(String packageName) {
     StringManager mgr = managers.get(packageName);
     if (mgr == null) {
@@ -93,4 +110,48 @@ private StringManager(String packageName) {
 }
 ```
 
-8.
+8.**Tomcat中的不可变Map的应用:**
+
+ParameterMap : 存储请求参数的键值对(name-value)。可以通过request.getParameter(String key)获取参数值，在Tomcat的设计中，请求参数是不能被servlet程序员更改的，所以使用了特殊的Map.  
+
+ParameterMap源码如下：位于org.apache.catalina.util.ParameterMap
+```java
+/**
+* Construct a new, empty map with the default initial capacity and
+* load factor.
+*/
+public ParameterMap() {
+    delegatedMap = new LinkedHashMap<>();
+    unmodifiableDelegatedMap = Collections.unmodifiableMap(delegatedMap);
+}
+
+// Collections.unmodifiableMap()
+public static <K,V> Map<K,V> unmodifiableMap(Map<? extends K, ? extends V> m) {
+    return new UnmodifiableMap<>(m);
+}
+
+// UnmodifiableMap 是private类，只有在类内部调用，在外部是看不到的。
+private static class UnmodifiableMap<K,V> implements Map<K,V>, Serializable {
+```
+UnmodifiableMap分析：
+```java
+private static class UnmodifiableMap<K,V> implements Map<K,V>, Serializable {
+    /**
+     * Tomcat的不可变Map实现，把所有改变Map里的值的方法，直接抛异常。
+     */
+    public V put(K key, V value) {
+        throw new UnsupportedOperationException();
+    }
+    public V remove(Object key) {
+        throw new UnsupportedOperationException();
+    }
+    public void putAll(Map<? extends K, ? extends V> m) {
+        throw new UnsupportedOperationException();
+    }
+    public void clear() {
+        throw new UnsupportedOperationException();
+    }
+}
+```
+
+
