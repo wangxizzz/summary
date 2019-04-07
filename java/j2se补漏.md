@@ -37,5 +37,23 @@ select goods_id,goods_name from goods where goods_id = (select max(goods_id) fro
 优化方式：
 可以使用连接查询（JOIN）代替子查询，连接查询不需要建立临时表，因此其速度比子查询快。
 
-3.
+3.Guava中不可变的Map:
+
+ImmutableMap
+```java
+
+// 实现方式 也是在调用改变Map值的方法里直接抛出异常。
+public final V put(K k, V v) {
+    throw new UnsupportedOperationException();
+}
+public final V putIfAbsent(K key, V value) {
+    throw new UnsupportedOperationException();
+}
+
+public final boolean replace(K key, V oldValue, V newValue) {
+    throw new UnsupportedOperationException();
+}
+```
+
+4
 
