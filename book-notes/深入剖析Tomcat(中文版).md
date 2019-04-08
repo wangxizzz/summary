@@ -133,7 +133,7 @@ public static <K,V> Map<K,V> unmodifiableMap(Map<? extends K, ? extends V> m) {
 // UnmodifiableMap 是private类，只有在类内部调用，在外部是看不到的。
 private static class UnmodifiableMap<K,V> implements Map<K,V>, Serializable {
 ```
-UnmodifiableMap分析：
+UnmodifiableMap分析：位于JDK中：java.util.Collections.UnmodifiableMap
 ```java
 private static class UnmodifiableMap<K,V> implements Map<K,V>, Serializable {
     /**
@@ -153,5 +153,51 @@ private static class UnmodifiableMap<K,V> implements Map<K,V>, Serializable {
     }
 }
 ```
+**当然ParameterMap里面的值并不是绝对不可变的：**
+```java
+public final class ParameterMap<K,V> implements Map<K,V>, Serializable {
+
+    private static final long serialVersionUID = 2L;
+
+    // 创建的代理Map
+    private final Map<K,V> delegatedMap;
+
+    // 可能保存了一份不可变数据的副本。
+    private final Map<K,V> unmodifiableDelegatedMap;
+
+    /**
+     * Construct a new, empty map with the default initial capacity and
+     * load factor.
+     */
+    public ParameterMap() {
+        delegatedMap = new LinkedHashMap<>();
+        unmodifiableDelegatedMap = Collections.unmodifiableMap(delegatedMap);
+    }
+
+    private void checkLocked() {
+        if (locked) {
+            throw new IllegalStateException(sm.getString("parameterMap.locked"));
+        }
+    }
+    public void clear() {
+        // 检查锁，其实是一个标志变量。
+        checkLocked();
+        delegatedMap.clear();
+    }
+    public V put(K key, V value) {
+        checkLocked();
+        return delegatedMap.put(key, value);
+    }
+    public V remove(Object key) {
+        checkLocked();
+        return delegatedMap.remove(key);
+    }
+    
+}
+```
+
+9.**Servlet的生命周期：**
+
+10.
 
 
