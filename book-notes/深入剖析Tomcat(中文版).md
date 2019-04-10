@@ -343,8 +343,8 @@ private ServerSocket open()
 // getFactory()分析：
 /**
  * 此方法这样写的应用场景：
- *  此方法所在的类为final类型，并且在调用方创建的对象应该是static类型，然后才可以得到
- *   单例的factory
+ *  此方法所在的类为final类型，并且在调用方创建的类对象应该是static类型，然后才可以得到
+ *  factory的单例。
  */
 public ServerSocketFactory getFactory() {
     // 创建出factory的单例模式
@@ -357,7 +357,6 @@ public ServerSocketFactory getFactory() {
 
 }
 ```
-15.
 
 
 
