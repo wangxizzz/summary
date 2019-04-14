@@ -358,7 +358,18 @@ public ServerSocketFactory getFactory() {
 }
 ```
 
+15.**TCP的nodelay套接字的用法与场景：**  
+https://www.cnblogs.com/wajika/p/6573014.html
 
+16.**servlet容器的分类：**
+- Engine:表示整个Catalina servlet引擎；
+- Host:表示包含一个或多个Context容器的虚拟主机；
+- Context:表示一个Web应用程序，一个Context 可以有多个Wrapper；
+- Wrapper:表示一个独立的servlet.
+
+它们是父子容器关系，并且采用责任链模式进行处理。
+
+17.
 
 
 
