@@ -369,7 +369,13 @@ https://www.cnblogs.com/wajika/p/6573014.html
 
 它们是父子容器关系，并且采用责任链模式进行处理。
 
-17.
+17.**tomcat启动过程？**
+
+18.**Tomcat4中一个Wrapper容器的处理顺序：**(源代码参照05)  
+创建HttpConnector,调用httpConnector的start(),创建线程执行connector中run(),然后创建HttpProcessor，在其构造函数中创建Request和Response对象，并且把connector赋值, 然后创建线程调用HttpProcessor的run()，执行process()，处理请求行，请求头，设置响应行、头，调用容器的invoke()，然后再执行容器中的invoke处理。
+
+19.
+
 
 
 
