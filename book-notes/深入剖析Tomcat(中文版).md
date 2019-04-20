@@ -391,7 +391,27 @@ https://blog.csdn.net/qq_36371449/article/details/80314024
 21.**类加载器的双亲委派模型：**  
 <img src="../imgs/双亲委派模型.png"/>  
 
-22.
+22.**类载入器：**
+- 仓库：表示类载入器在哪里搜索需要载入的类；
+- 资源：表示一个类载入器的DirContext对象。
+
+23.**CAS复习：**  
+
+CAS有3个操作数，内存值V，旧的预期值A(是指读到方法栈的值)，要修改的新值B。当且仅当预期值A和内存值V相同时，将内存值V修改为B，否则什么都不做。  
+```java
+public final int incrementAndGet() {
+    for (;;) {
+        int current = get();    // 旧的预期值
+        int next = current + 1;  // 要更新的值
+        // 此方法执行成功有先后关系(底层硬件保证原子性)
+        if (compareAndSet(current, next))  // 旧的预期值与内存值相比较
+            return next;
+    }
+}
+```
+https://zl198751.iteye.com/blog/1848575
+
+24.
 
 
 
