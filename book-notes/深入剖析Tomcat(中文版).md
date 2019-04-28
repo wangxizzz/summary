@@ -411,7 +411,9 @@ public final int incrementAndGet() {
 ```
 https://zl198751.iteye.com/blog/1848575
 
-24.
+24.**Servlet单例还是多例的？**
+
+25.
 
 
 
