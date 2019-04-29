@@ -413,7 +413,10 @@ https://zl198751.iteye.com/blog/1848575
 
 24.**Servlet单例还是多例的？**
 
-25.
+25.**Tomcat4对servlet线程安全的解释：**  
+如果servlet实现了SingleThreadModel接口，那么每次就从STM servlet池中拿一个instance，当然池需要同步处理。对于没有实现STM接口，StandardWrapper只会载入该servlet一次，后续请求都返回该servlet类的同一个实例。
+
+26.
 
 
 
