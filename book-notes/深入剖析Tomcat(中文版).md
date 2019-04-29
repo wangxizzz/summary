@@ -416,7 +416,19 @@ https://zl198751.iteye.com/blog/1848575
 25.**Tomcat4对servlet线程安全的解释：**  
 如果servlet实现了SingleThreadModel接口，那么每次就从STM servlet池中拿一个instance，当然池需要同步处理。对于没有实现STM接口，StandardWrapper只会载入该servlet一次，后续请求都返回该servlet类的同一个实例。
 
-26.
+26.容器处理具体的从connector过来的HTTP请求，是由每个具体的container的基础阀的invoke()进行处理。基础阀在每个container初始构造函数中进行set.
+```java
+/**
+* Create a new StandardContext component with the default basic Valve.
+*/
+public StandardContext() {
+    super();
+    pipeline.setBasic(new StandardContextValve());
+    namingResources.setContainer(this);
+}
+```
+
+27.
 
 
 
