@@ -1,3 +1,5 @@
+## 笔记只起到抛砖引玉的作用。具体还需要查详细资料！！
+
 1.socket通信的底层调用：send,recv,sendto,recvfrom系统调用。  
 参见网址：https://blog.csdn.net/jirryzhang/article/details/53585855  
 
@@ -46,7 +48,8 @@
 7.**Java NIO中的API详解**
 - remaining():
 - flip():
-- 
+参考网址：  
+https://segmentfault.com/a/1190000005675241 ， NIO的Cannel与Buffer详解
 
 8.**线程池的并发聊天服务器**
 
@@ -60,3 +63,49 @@
 
 9.reactor模型：  
 https://www.cnblogs.com/doit8791/p/7461479.html
+
+
+10.epoll所带来的优势：  
+- 持有更多的文件句柄数（与系统内存有关）；
+- 以前是线性扫描整个socket集合，看哪个准备好了，现在是“活跃“的socket主动去掉callback函数，其他idle的socket就不会。
+- 利用共享内存mmap加速内存与用户空间消息的传递；
+
+11.网络编程：  
+网络编程的基本模型是Client/Server,也就是两个进程之间的相互通信，服务端提供地址，客户端向服务端监听的地址发送数据，通过TCP三次握手建立连接，如果建立成功，就可以进行socket通信了。
+
+12.**Java NIO参考文章**
+
+**Channel的实现:**  
+- FileChannel:从文件中读写数据
+- DatagramChannel:通过UDP读写网络中的数据
+- SocketChannel:通过TCP读写网络中的数据
+- ServerSocketChannel:监听新进来的TCP连接，像Web服务器那样。对每一个新进来的连接都会创建一个SocketChannel
+
+https://segmentfault.com/a/1190000006824196 ,NIO的Selector详解
+
+https://segmentfault.com/a/1190000005675241 , NIO的Cannel与Buffer详解
+
+https://www.open-open.com/lib/view/open1420790598093.html NIO与传统IO的区别和4中监听事件详解
+
+https://www.jianshu.com/p/746fac80edf8   FileChannel与SocketChannel与流的read()是否阻塞问题：  
+阻塞IO会在read或者write方法处阻塞，直到有流可读或者将流写入操作系统完成，可以通过Channel.configureBlocking(false)设置为非阻塞（注意FileChannel不能切换为非阻塞模式，而套接字通道可以），非阻塞IO不会在read或者write方法或者accept方法处阻塞，而是会立刻返回(在channel中，如果有数据，就读到buffer中，因此不会阻塞)。
+
+13.Java中的```RandomAccessFile``` 类：  
+https://blog.csdn.net/qq496013218/article/details/69397380， 这篇文章记载了RandomAccessFile应用场景和用法。
+
+https://www.jianshu.com/p/c8aa567f2101
+
+14.Linux的```sendfile```系统调用：
+
+java中FileChannel 中transferFrom，transferTo底层使用了这个System Operating.
+```java
+sendfile(socket, file, len);  
+```
+运行流程如下：  
+1、sendfile系统调用，文件数据被copy至内核缓冲区  
+2、再从内核缓冲区copy至内核中socket相关的缓冲区  
+3、最后再socket相关的缓冲区copy到协议引擎  
+
+参考网址：https://blog.csdn.net/yusiguyuan/article/details/29350351
+
+15.
