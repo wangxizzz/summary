@@ -13,11 +13,11 @@ autowired注入List时，会把List中的所有bean注入进来（如果bean为�
 
 3.Timestamp(sql包下) 与 LocalDateTime的相互转换
 ```java
-jdk:1.8
-1.Timestamp 转 LocalDateTime 
+// jdk:1.8
+// 1.Timestamp 转 LocalDateTime 
 Timestamp time = Timestamp.from(Instant.now());
 LocalDateTime localDateTime = time.toLocalDateTime();
-2.LocalDateTime  转 Timestamp
+// 2.LocalDateTime  转 Timestamp
 Timestamp time = Timestamp.valueOf(LocalDateTime.now());
 ```
 ==========================================================  
@@ -125,17 +125,41 @@ https://blog.csdn.net/w372426096/article/details/78429141
 @Resource的作用相当于@Autowired，只不过@Autowired按照byType自动注入。
 
 8.SpringMVC注解:
-- @ModelAttribute: 将key-value组装为Model.
-- @RequestBody将RequestBody整体作为json串解析为Model(适用于前端的字段太多,不适合写成k-v).
+- @RequestBody将RequestBody整体作为json串解析为Model(适用于前端的字段太多,不适合写成k-v)， 只针对POST请求，可参见第10条.
 - @RequestMapping的参数:
     - path="/user"--请求路径
     - method 请求方式
     - params: 比如params={"version=2"}
 - @RequestParam:绑定具体参数.(name="参数名称", required = false, defaultValue=1)--> 表示参数值默认为1,可有可无.
 
-9.
+**10.SpringMVC的参数绑定机制：**
 
+**以下demo是在postman下测试**
 
+一、POST、GET请求都可以自动绑定对象：
+```java
+@PostMapping("user")
+public User addUser(@Valid UserInputDTO userInputDTO, BindingResult bindingResult){
+    return null;
+}
+
+@GetMapping("user1")
+public String baseInfoCompany(@Valid UserInputDTO userInputDTO) {
+    return "";
+}
+```
+测试数据如下：注意参数是利用Postnan的param传的    
+<img src="../imgs/request.png" />
+
+二、POST/GET请求中```RequestBody```和```RequestParam```的应用场景：  
+参考网址：https://www.jianshu.com/p/4981911d5e15 值得细读
+
+1、从content-type方面总结：  
+① form-data、x-www-form-urlencoded：不可以用@RequestBody；可以用@RequestParam，url中的?后面参数可以用@RequestParam。见postman的格局，这两种方式的时候没有json字符串部分。  
+② application/json：json字符串部分可以用@RequestBody；。见postman的格局
+
+2、从两种注解方式总结：  
+详细阅读：https://www.jianshu.com/p/4981911d5e15 
 
 
 
