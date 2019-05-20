@@ -161,6 +161,12 @@ public String baseInfoCompany(@Valid UserInputDTO userInputDTO) {
 2、从两种注解方式总结：  
 详细阅读：https://www.jianshu.com/p/4981911d5e15 
 
+11.**Spring的bean的id、name、别名之间的关系以及getBean()源码分析**   
+https://blog.csdn.net/hongxingxiaonan/article/details/49835861
+
+12.
+
+
 
 
 

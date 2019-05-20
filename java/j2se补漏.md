@@ -119,7 +119,7 @@ BeanUtils.copyProperties 是一个浅拷贝方法，复制属性时，我们只�
 **9.Hibernate validation:**
 
 更多详细介绍Hibernate validation参考：
-https://www.cnblogs.com/mr-yang-localhost/p/7812038.html  全面的介绍Hibernate validation(里面的对@RequestPara参数的校验是正确的，需要创建一个bean)
+https://www.cnblogs.com/mr-yang-localhost/p/7812038.html  全面的介绍Hibernate validation(里面的对@RequestPara参数的校验是正确的，需要创建一个bean, 并且不能使用bindingResult),具体的实现可参照工程design-pattern的refactoring工程的demo01.
  
 https://blog.csdn.net/Gred01/article/details/78533390 介绍常用的用法
 
@@ -139,13 +139,29 @@ https://blog.csdn.net/Gred01/article/details/78533390 介绍常用的用法
 如果上述类型与注解使用错误，会抛异常。
 https://www.jianshu.com/p/e70cb8ba8f48 列出了各个注解的用法
 
-10.joda time 使用参考：
-- code refactoring工程
+10.Preconditions参数校验机制：让前置条件判断变得更优雅    
+https://blog.csdn.net/zivensonice/article/details/51912188
+
+11.joda time 使用参考：
+- code refactoring工程的demo02
 - https://blog.csdn.net/qq_36838191/article/details/81296987 介绍了DateTime(相当于Calendar)的操作
 - joda time 对日期的格式化    https://www.jianshu.com/p/cb4521194707
 
-11.
+### 12.约定优于配置  
+Springboot.
+```java
+// 在Guava中
+List<String> list = Lists.newArrayList();
+```
 
+13.**Guava中的集合框架API使用:**  
 
+https://www.cnblogs.com/snidget/archive/2013/02/05/2893344.html
 
+14.**transient关键字：**  
+https://www.cnblogs.com/lanxuezaipiao/p/3369962.html#top  
+也可以参考j2se工程的java高级知识
 
+15.抽象类和Interface相同，不能创建对象(直接new 会变成匿名内部类的方式创建),但是Abstract class有构造函数。
+
+16.
