@@ -6,12 +6,15 @@
     ref="userServiceImpl01" timeout="1000" version="1.0.0">
     <dubbo:method name="getUserAddressList" timeout="1000"></dubbo:method>
 </dubbo:service>
+<!-- bean的实现者，采用xml配置 -->
+<bean id="userServiceImpl01" class="service.impl.UserServiceImpl"></bean>
 
 <dubbo:service interface="com.demo.service.UserService"
 <!-- 同样的服务，接口的实现不同，version为2.0.0 -->
     ref="userServiceImpl02" timeout="1000" version="2.0.0">
     <dubbo:method name="getUserAddressList" timeout="1000"></dubbo:method>
 </dubbo:service>
+<bean id="userServiceImpl02" class="service.impl.UserServiceImpl2"></bean>
 ```
 服务的消费方：
 ```xml
