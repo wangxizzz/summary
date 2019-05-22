@@ -202,4 +202,23 @@ https://blog.csdn.net/u012050154/article/details/50903326  很好的解释了wai
 
 notify方法并不释放锁
 
-18.
+**18、线程间的协作(wait/notify/sleep/yield/join)**  
+https://www.cnblogs.com/paddix/p/5381958.html  
+线程的5个状态：  
+　Java中线程中状态可分为五种：New（新建状态），Runnable（就绪状态），Running（运行状态），Blocked（阻塞状态），Dead（死亡状态）。
+
+　　New：新建状态，当线程创建完成时为新建状态，即new Thread(...)，还没有调用start方法时，线程处于新建状态。
+
+　　Runnable：就绪状态，当调用线程的的start方法后，线程进入就绪状态，等待CPU资源。处于就绪状态的线程由Java运行时系统的线程调度程序(thread scheduler)来调度。
+
+　　Running：运行状态，就绪状态的线程获取到CPU执行权以后进入运行状态，开始执行run方法。
+
+　　Blocked：阻塞状态，线程没有执行完，由于某种原因（如，I/O操作等）让出CPU执行权，自身进入阻塞状态。
+
+　　Dead：死亡状态，线程执行完成或者执行过程中出现异常，线程就会进入死亡状态。
+
+```yield方法```的作用是暂停当前线程，以便其他线程有机会执行，不过不能指定暂停的时间，并且也不能保证当前线程马上停止。yield方法只是将Running状态转变为Runnable状态。
+
+```join方法``` join方法的作用是父线程等待子线程执行完成后再执行，换句话说就是将异步执行的线程合并为同步的线程。
+
+19.
