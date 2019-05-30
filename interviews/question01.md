@@ -26,6 +26,10 @@ https://blog.csdn.net/wang0112233/article/details/79558612
 
 5.Redis缓存一致性问题：  
 
-6.
+6.epoll与select
+
+7.基于Redis的分布式锁。
+
+8.
 
 
