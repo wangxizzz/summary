@@ -108,10 +108,4 @@ sendfile(socket, file, len);
 
 参考网址：https://blog.csdn.net/yusiguyuan/article/details/29350351
 
-15.
-Netty的应用  
-RPC的例子  
-dubbo2.7的CompletableFuture的支持。
-
-这一阶段：dubbo官网与go视频
-下一阶段：netty视频与python网站学习
+======================================================
