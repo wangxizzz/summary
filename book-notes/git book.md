@@ -44,6 +44,7 @@ Changes to be committed: 表示需要commit
     - git add README        // 把新文件加入暂存区
 
 **git log**
+- ```这个命令在wangxi01分支下执性，那么就只会出现wangxi01的commit log。```
 - 默认不用任何参数的话， git log 会按提交时间列出所有的更新， 最近的更新排在最上面。
 - git log -p -2
     - 一个常用的选项是 -p ， 用来显示每次提交的内容差异。 你也可以加上 -2 来仅显示最近两
@@ -225,14 +226,25 @@ git config --global alias.last 'log -1 HEAD'  // 相当于git log -1
 ## Git回退：
 
 **git revert**
+- 参考文章：https://juejin.im/post/5b0e5adc6fb9a009d82e4f20
 
 **git reset**
+- 参照下面的commit回退。
 
 **git rebase**
 
+**revert与reset的区别：**
+- git revert是用一次新的commit来回滚之前的commit(把需要revert的版本回滚，然后重新commit了一个，之前的版本都在)，git reset是直接删除指定的commit(reset的中间所有commit全部直接丢掉了)
+- git reset 是把HEAD向后移动了一下，而git revert是HEAD继续前进
+- 如果回退分支的代码以后还需要的话用git revert就再好不过了；如果分支我就是提错了没用了还不想让别人发现我错的代码，那就git reset吧
+- 例如：develop分支已经合并了a、b、c、d四个分支，我忽然发现b分支没用啊，代码也没必要，这个时候就不能用reset了，因为使用reset之后c和d的分支也同样消失了。这时候只能用git revert b分支commit号，这样c和d的代码依然还在。
+- 参考文章：https://juejin.im/post/5b0e5adc6fb9a009d82e4f20
+
+
 ## Git应用场景：
 
-**git使用情景：commit之后，想撤销commit**
+**git使用情景：commit之后，想撤销commit**（reset的用法）
+
 这样凉拌：（亲测有效）
 
 git reset --soft HEAD^
@@ -242,11 +254,13 @@ git reset --soft HEAD^
 注意，仅仅是撤回commit操作，您写的代码仍然保留。
 
 说一下个人理解：
+
 HEAD^的意思是上一个版本，也可以写成HEAD~1
 
 如果你进行了2次commit，想都撤回，可以使用HEAD~2
 
 至于这几个参数：
+
 --mixed 
 意思是：不删除工作空间改动代码，撤销commit，并且撤销git add . 操作
 这个为默认参数,git reset --mixed HEAD^ 和 git reset HEAD^ 效果是一样的。
@@ -259,14 +273,18 @@ HEAD^的意思是上一个版本，也可以写成HEAD~1
 
 注意完成这个操作后，就恢复到了上一次的commit状态。
 
-顺便说一下，如果commit注释写错了，只是想改一下注释，只需要：
-git commit --amend
+```注意：如果回退后，想要push到远程分支，会出现 Updates were rejected because the tip of your current branch is behind its remote counterpart 错误。本地分支落后于远程分支。因此需要使用命令：git push origin wangxi01 --force```
+
+```顺便说一下，如果commit注释写错了，只是想改一下注释，只需要：```
+
+```git commit --amend -m "新注释"```
 
 此时会进入默认vim编辑器，修改注释完毕后保存就好了。
 
 - https://blog.csdn.net/w958796636/article/details/53611133
 
-**遇到问题-----git-----You have not concluded your merge (MERGE_HEAD exists) git拉取失败**
+
+**遇到问题-----git-----You have not concluded your merge (MERGE_HEAD exists) git拉取失败**  
 ```亲测有效```
 保留你本地的修改
 
@@ -281,10 +299,18 @@ git reset --merge
 git pull
 - https://blog.csdn.net/zzq900503/article/details/71173234
 
-**git如果在merge时，不小心merge漏了几行代码，然后就点击了ok。后来发现想重新pull,把那几行代码拉下来，但是现实pull no items??**
+
+**git如果在merge时，不小心merge漏了几行代码，然后就点击了ok。后来发现想重新pull,把那几行代码拉下来，但是现实pull no items??** （亲测有效）
 - 为什么会pull no items呢？
     - 因为已经merge过了，那么这两个分支会在同一个点上，你再怎么拉，仍然拉不下来（即使文件不一样）。
 - 解决办法:
-    - 会退到merge之前的版本，然后重新pull，重新merge,这回需要看仔细了！！
-        - git reste --hard commitId  (commitId最好从idea的可视化界面看Version Control-> log, 也可以git log查看)
+    - 回退到merge之前的版本，然后重新pull，重新merge,这回需要看仔细了！！
+        - 回退命令： git reste --hard commitId  (commitId最好从idea的可视化界面看Version Control-> log, 也可以git log查看)
+
+## 关于idea中的Version Control的可视化界面的操作：
+<img src="../imgs/CVS1.png">
+
+<img src="../imgs/CVS2.png">
+
+<img src="../imgs/CVS3.png">
 
