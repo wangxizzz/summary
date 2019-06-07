@@ -3,10 +3,9 @@
 ### 测试以  https://github.com/wangxizzz/gitdemo 仓库为基础进行测试，并且建立了三个分支，分别是master,wangxi01,wangxi02
 
 ```在idea中使用git，新创建的文件时红色，执行git add . 后,变为绿色，执行git commit 后，变为无色。```
+
 Changes not staged for commit:  表示还没有到commit阶段，需要add  
 Changes to be committed: 表示需要commit
-
-## 已经commit了，如何回退？？？
 
 ### 常用命令：
 **git add:**
@@ -225,16 +224,25 @@ git config --global alias.last 'log -1 HEAD'  // 相当于git log -1
 
 ## Git回退：
 
+**git stash**
+- 保存当前工作进度(此时工作空间回到上次commit的状态)。
+- git stash pop : 回复上次保存的进度。
+- 更多命令参考网址：https://blog.csdn.net/daguanjia11/article/details/73810577
+
+
 **git revert**
 - 参考文章：https://juejin.im/post/5b0e5adc6fb9a009d82e4f20
+- 也可以参照下面的 revert与reset的区别
 
 **git reset**
-- 参照下面的commit回退。
+- 参照下面的   git使用情景：commit之后，想撤销commit 。
 
 **git rebase**
+- git rebase wangxi02 : 把wangxi02分支修改的东西在当前分支重演一遍。
+- 参考网址：https://blog.csdn.net/qq_36387730/article/details/91127707
 
 **revert与reset的区别：**
-- git revert是用一次新的commit来回滚之前的commit(把需要revert的版本回滚，然后重新commit了一个，之前的版本都在)，git reset是直接删除指定的commit(reset的中间所有commit全部直接丢掉了)
+- git revert是用一次新的commit来回滚之前的commit(把需要revert的版本回滚到上一版本，然后重新commit了一个，之前的版本都在)，git reset是直接删除指定的commit(reset的中间所有commit全部直接丢掉了)
 - git reset 是把HEAD向后移动了一下，而git revert是HEAD继续前进
 - 如果回退分支的代码以后还需要的话用git revert就再好不过了；如果分支我就是提错了没用了还不想让别人发现我错的代码，那就git reset吧
 - 例如：develop分支已经合并了a、b、c、d四个分支，我忽然发现b分支没用啊，代码也没必要，这个时候就不能用reset了，因为使用reset之后c和d的分支也同样消失了。这时候只能用git revert b分支commit号，这样c和d的代码依然还在。
@@ -281,7 +289,7 @@ HEAD^的意思是上一个版本，也可以写成HEAD~1
 
 此时会进入默认vim编辑器，修改注释完毕后保存就好了。
 
-- https://blog.csdn.net/w958796636/article/details/53611133
+- 参考网址： https://blog.csdn.net/w958796636/article/details/53611133
 
 
 **遇到问题-----git-----You have not concluded your merge (MERGE_HEAD exists) git拉取失败**  
@@ -296,8 +304,8 @@ git reset --merge
 
 然后在获取线上仓库
 
-git pull
-- https://blog.csdn.net/zzq900503/article/details/71173234
+git pull origin 分支名
+- 参考网址： https://blog.csdn.net/zzq900503/article/details/71173234
 
 
 **git如果在merge时，不小心merge漏了几行代码，然后就点击了ok。后来发现想重新pull,把那几行代码拉下来，但是现实pull no items??** （亲测有效）
@@ -307,6 +315,11 @@ git pull
     - 回退到merge之前的版本，然后重新pull，重新merge,这回需要看仔细了！！
         - 回退命令： git reste --hard commitId  (commitId最好从idea的可视化界面看Version Control-> log, 也可以git log查看)
 
+**Git设置当前分支为默认push分支**
+- git config --global push.default "current"
+- 参考网址：https://blog.csdn.net/zhihuirensheng123/article/details/82773914
+- git pull 就没必要设置默认分支了。
+
 ## 关于idea中的Version Control的可视化界面的操作：
 <img src="../imgs/CVS1.png">
 
@@ -314,3 +327,4 @@ git pull
 
 <img src="../imgs/CVS3.png">
 
+<img src="../imgs/CVS4.png">
