@@ -1,4 +1,3 @@
-## 笔记只起到抛砖引玉的作用。具体还需要查详细资料！！
 
 1.socket通信的底层调用：send,recv,sendto,recvfrom系统调用。  
 参见网址：https://blog.csdn.net/jirryzhang/article/details/53585855  
@@ -46,23 +45,16 @@
 - Java对象编解码技术：当进行远程跨进程服务调用时，需要把被传输的Java对象编码为字节数组或者ByteBuffer对象。而当远程服务读取到字节数组或者ByteBuffer对象时，需要将它解码为发送时的Java对象。
 
 7.**Java NIO中的API详解**
-- remaining():
-- flip():
-参考网址：  
-https://segmentfault.com/a/1190000005675241 ， NIO的Cannel与Buffer详解
-
-8.**线程池的并发聊天服务器**
-
+- 参考网址：  
+    - https://segmentfault.com/a/1190000005675241 ， NIO的Channel与Buffer详解
 
 **ctrl c , ctrl v时，系统做了什么？**  
 
 系统的复制、粘贴过程实际上是调用的系统中的API函数，(从用户进程空间复制内容到内核空间，然后再复制到另外的用户进程空间) 。拿windows来说，它会调用GetClipboardData、SetClipboardData等等API函数(Clipboard 剪贴板)。 这是单纯的从应用程序来解释，如果是想更深入的理解这些机制，需要内核调试这些API函数，但是总体上来说，都是通过虚拟内存来复制数据完成的。  
 
 复制的原理是将源文件的副本拷贝到内存的一块缓冲区中，也就是我们说的剪贴板。缓冲区容量有限，遇到大文件会分批进行拷贝 ，只不过我们不会察觉。同时不断将缓冲区内的数据写入到目标位置。即完成文件复制。剪切比其多一个步骤，就是在```复制完成后```将源文件删除，即在文件分配表中为源文件标上删除标记。因此剪切比复制要慢。  
-参考网址：https://zhidao.baidu.com/question/483819292.html?qbl=relate_question_5
 
-9.reactor模型：  
-https://www.cnblogs.com/doit8791/p/7461479.html
+**9.reactor模型**：  
 
 
 10.epoll所带来的优势：  
@@ -90,12 +82,12 @@ https://www.open-open.com/lib/view/open1420790598093.html NIO与传统IO的区�
 https://www.jianshu.com/p/746fac80edf8   FileChannel与SocketChannel与流的read()是否阻塞问题：  
 阻塞IO会在read或者write方法处阻塞，直到有流可读或者将流写入操作系统完成，可以通过Channel.configureBlocking(false)设置为非阻塞（注意FileChannel不能切换为非阻塞模式，而套接字通道可以），非阻塞IO不会在read或者write方法或者accept方法处阻塞，而是会立刻返回(在channel中，如果有数据，就读到buffer中，因此不会阻塞)。
 
-13.Java中的```RandomAccessFile``` 类：  
+13.**Java中的```RandomAccessFile``` 类：**  
 https://blog.csdn.net/qq496013218/article/details/69397380， 这篇文章记载了RandomAccessFile应用场景和用法。
 
 https://www.jianshu.com/p/c8aa567f2101
 
-14.Linux的```sendfile```系统调用：
+**14.Linux的```sendfile```系统调用：**
 
 java中FileChannel 中transferFrom，transferTo底层使用了这个System Operating.
 ```java
@@ -108,4 +100,4 @@ sendfile(socket, file, len);
 
 参考网址：https://blog.csdn.net/yusiguyuan/article/details/29350351
 
-======================================================
+****
