@@ -19,7 +19,6 @@
     - 通过在消息头中定义长度字段来标识消息的总长度。
 
 4.**linux系统函数：**  
-- ```内核空间与用户空间：```调用系统函数相当于系统调用。内核空间和用户空间是严格区分的，可以通过系统调用来访问内核空间，此时从用户态转为了内核态。一个任务（进程）执行系统调用而陷入内核代码中执行时，我们就称进程处于内核运行态（或简称为内核态）。此时处理器处于特权级最高的（0级）内核代码中执行。当进程处于内核态时，执行的内核代码会使用当前进程的内核栈。每个进程都有自己的内核栈。当进程在执行用户自己的代码时，则称其处于用户运行态（用户态）。
 - write() 系统调用: 
     - 函数原型：ssize_t write (int fd, const void * buf, size_t count); 
     - 函数说明：write()会把参数buf所指的内存写入count个字节到参数fd所指的文件内。
@@ -79,13 +78,8 @@ https://segmentfault.com/a/1190000005675241 , NIO的Cannel与Buffer详解
 
 https://www.open-open.com/lib/view/open1420790598093.html NIO与传统IO的区别和4中监听事件详解
 
-https://www.jianshu.com/p/746fac80edf8   FileChannel与SocketChannel与流的read()是否阻塞问题：  
+https://www.jianshu.com/p/746fac80edf8   FileChannel与SocketChannel与流的read()是否阻塞问题(文章讲的是正确的)：  
 阻塞IO会在read或者write方法处阻塞，直到有流可读或者将流写入操作系统完成，可以通过Channel.configureBlocking(false)设置为非阻塞（注意FileChannel不能切换为非阻塞模式，而套接字通道可以），非阻塞IO不会在read或者write方法或者accept方法处阻塞，而是会立刻返回(在channel中，如果有数据，就读到buffer中，因此不会阻塞)。
-
-13.**Java中的```RandomAccessFile``` 类：**  
-https://blog.csdn.net/qq496013218/article/details/69397380， 这篇文章记载了RandomAccessFile应用场景和用法。
-
-https://www.jianshu.com/p/c8aa567f2101
 
 **14.Linux的```sendfile```系统调用：**
 
@@ -101,3 +95,30 @@ sendfile(socket, file, len);
 参考网址：https://blog.csdn.net/yusiguyuan/article/details/29350351
 
 ****
+**nio Buffer 中 compact的作用**
+- 我们在 write 后，执行 buffer.compact()将没有发出的数据复制到 buffer 的开始位置，posittion = limit-position,limit = capacity,这样在下一次read(buffer)的时候，数据就会继续添加到缓冲的后面了
+- 参考网址：https://blog.csdn.net/jiang_bing/article/details/7878390
+
+**mark,position,limit,capacity的关系**
+0 <= mark <= position <= limit <= capacity
+
+**Java中new的对象一定是放在heap上，JVM可以直接操作这块区域。**
+
+**内核空间和用户空间：**
+- 操作系统所在的空间(内存)为内核空间，也有访问底层硬件设备的所有权限，应用进程所在的空间为用户空间。
+- 应用进程是无法直接操作硬件设备和执行特权命令，只有通过系统调用，用户态切换到核态，进行访问。比如IO,socket(涉及网卡交互)。
+- 参考网址：https://www.cnblogs.com/sparkdev/p/8410350.html
+
+**Socket缓冲区**
+- 每个 socket 被创建后，都会分配两个缓冲区，输入缓冲区和输出缓冲区。write()/send() 并不立即向网络中传输数据，而是先将数据写入缓冲区中，再由TCP协议将数据从缓冲区发送到目标机器。一旦将数据写入到缓冲区，函数就可以成功返回，不管它们有没有到达目标机器，也不管它们何时被发送到网络，这些都是TCP协议负责的事情。TCP协议独立于 write()/send() 函数，数据有可能刚被写入缓冲区就发送到网络，也可能在缓冲区中不断积压，多次写入的数据被一次性发送到网络，这取决于当时的网络情况、当前线程是否空闲等诸多因素，不由程序员控制。read()/recv() 函数也是如此，也从输入缓冲区中读取数据，而不是直接从网络中读取。
+- https://www.jianshu.com/p/de482fc0e9fb
+
+**Java NIO零拷贝技术**
+- sendfile则没有映射,适用于应用进程不需要对读取的数据做任何处理的场景。
+- https://juejin.im/post/5c1c532551882579520b1f47
+- 参考网址：http://sound2gd.wang/2018/07/24/Java-NIO%E5%88%86%E6%9E%90-11-%E9%9B%B6%E6%8B%B7%E8%B4%9D%E6%8A%80%E6%9C%AF/
+
+**内存文件映射：(结合0拷贝来看)**
+- https://blog.csdn.net/Evankaka/article/details/48464013
+- https://blog.csdn.net/mg0832058/article/details/5890688
+
