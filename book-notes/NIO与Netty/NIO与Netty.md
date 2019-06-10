@@ -100,7 +100,7 @@ sendfile(socket, file, len);
 - 参考网址：https://blog.csdn.net/jiang_bing/article/details/7878390
 
 **mark,position,limit,capacity的关系**
-0 <= mark <= position <= limit <= capacity
+- 0 <= mark <= position <= limit <= capacity
 
 **Java中new的对象一定是放在heap上，JVM可以直接操作这块区域。**
 
@@ -116,9 +116,15 @@ sendfile(socket, file, len);
 **Java NIO零拷贝技术**
 - sendfile则没有映射,适用于应用进程不需要对读取的数据做任何处理的场景。
 - https://juejin.im/post/5c1c532551882579520b1f47
-- 参考网址：http://sound2gd.wang/2018/07/24/Java-NIO%E5%88%86%E6%9E%90-11-%E9%9B%B6%E6%8B%B7%E8%B4%9D%E6%8A%80%E6%9C%AF/
+- 参考网址：http://sound2gd.wang/2018/07/24/Java-NIO%E5%88%86%E6%9E%90-11-%E9%9B%B6%E6%8B%B7%E8%B4%9D%E6%8A%80%E6%9C%AF/ ，此里面含有Java使用2中0拷贝的例子。
 
 **内存文件映射：(结合0拷贝来看)**
+- 简要理解：磁盘文件与内存建立映射，这块内存相对JVM来说，是堆外内存，Java程序直接操作堆外内存(Buffer中通过address逻辑地址)，就可以反映到操作文件。
 - https://blog.csdn.net/Evankaka/article/details/48464013
 - https://blog.csdn.net/mg0832058/article/details/5890688
 
+**RandomAccessFile与共享内存**
+- RandomAccessFile是一个独立的类，可读可写随机访问，但可以被MapedByteBuffer取代。
+- 参考网址：https://blog.csdn.net/akon_vm/article/details/7429245
+
+****
