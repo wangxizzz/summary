@@ -117,6 +117,8 @@ sendfile(socket, file, len);
 
 **Java NIO零拷贝技术**
 - sendfile则没有映射,适用于应用进程不需要对读取的数据做任何处理的场景。
+- 传统IO，用户空间通过read(),write()系统调用进行用户态与内核态的切换。
+- 0拷贝，应用程序通过sendfile系统调用使用zero copy.
 - https://juejin.im/post/5c1c532551882579520b1f47
 - 参考网址：http://sound2gd.wang/2018/07/24/Java-NIO%E5%88%86%E6%9E%90-11-%E9%9B%B6%E6%8B%B7%E8%B4%9D%E6%8A%80%E6%9C%AF/ ，此里面含有Java使用2中0拷贝的例子。
 
@@ -132,3 +134,35 @@ sendfile(socket, file, len);
 **每调用线程池的execute()或者submit(),都会起一个线程(重用或者新创建Thread)**
 
 **NIO的适用场景：多客户端连接，消息不是很大时 适用。**
+
+**字符编码：**
+- ASCII(American Standard Code Imformation Interchange)
+    - 7 bit 来表示一个字符。共有128个字符(0 ~ 127)
+- ISO-8859-1:
+    - 一个字节(8bit)表示一个字符，可以表示256个字符，相比于ascII多了128个字符。
+- GB2312:
+    - 以上两种最多只有256个字符，无法适应中文的数量，因此出现了其他编码。
+    - 两个字节表示一个汉字
+- GBK:
+    - 对GB2312的扩展，将一些生僻字加入
+- GB18030:
+    - 最全的中文编码
+- big5:
+    - 针对繁体中文
+- unicode:
+    - 全世界语言编码集
+    - 采用2个字节表示一个字符(有争论)
+    - 相对于ascII，占用存储空间。
+**以上都是字符编码方式**
+
+**针对unicode占用存储容量问题：**  
+下面介绍字符存储方式：
+- UTF (Unicode Translation Format):
+    - 本身是一种存储格式。
+    - UTF-8是unicode的一种实现之一，通常通过3个字节表示一个中文，一个英文字符用一个字节表示。
+    - utf-8为了节省资源，采用变长编码，编码长度从1个字节到6个字节不等。
+    - utf-16是用两个字节来编码所有的字符，utf-32则选择用4个字节来编码。
+- 参考网址:
+    - https://www.jianshu.com/p/36d20de2a1ee 
+
+
