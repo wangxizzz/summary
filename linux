@@ -69,12 +69,12 @@
     8888:表示端口号。详细可以参照网址。
 方式二：
     nc命令详解：https://www.cnblogs.com/nmap/p/6148306.html
-    server: nc -l 8888 < filename　　// 从server下载文件
-    local: nc server  8888 > filename　　// 从本地上传文件到server上
+    server端命令: nc -l 8888 < filename　　// 从server下载文件
+    local端命令: nc server  8888 > filename　　// 从本地上传文件到server上
 
 5、发现问题４删除错了文件，需要复原，把本地日志文件copy到服务器上？
-    server:nc -l 8888 > filename
-    local:nc server  8888 < filename
+    server: nc -l 8888 > filename
+    local: nc server  8888 < filename
 
 ６、本地有jdk7、jdk8两个sdk，需要切换，创建软链接指向某个版本文件夹？
     mkdir jdk8

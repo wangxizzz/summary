@@ -74,7 +74,9 @@
 
 https://segmentfault.com/a/1190000006824196 ,NIO的Selector详解
 
-https://segmentfault.com/a/1190000005675241 , NIO的Cannel与Buffer详解
+https://segmentfault.com/a/1190000005675241 , NIO的Channel与Buffer详解
+
+https://juejin.im/post/5afd4546f265da0b70261e96 ServerSocketChannel与SocketChannel
 
 https://www.open-open.com/lib/view/open1420790598093.html NIO与传统IO的区别和4中监听事件详解
 
@@ -127,4 +129,6 @@ sendfile(socket, file, len);
 - RandomAccessFile是一个独立的类，可读可写随机访问，但可以被MapedByteBuffer取代。
 - 参考网址：https://blog.csdn.net/akon_vm/article/details/7429245
 
-****
+**每调用线程池的execute()或者submit(),都会起一个线程(重用或者新创建Thread)**
+
+**NIO的适用场景：多客户端连接，消息不是很大时 适用。**
