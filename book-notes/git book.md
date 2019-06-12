@@ -30,7 +30,11 @@ Changes to be committed: 表示需要commit
 - -r 递归删除(删除目录), -f 强制删除
 
 **git rm --cached AA.java**
-- 我们想把文件从 Git 仓库中删除（ 亦即从暂存区域移除） ， 但仍然希望保留
+- 此命令针对已经commit了有效(亲测有效)。
+- 此命令的变型：
+    - git rm --cached --force -r .idea
+        - 递归untracked .idea下的文件
+- 我们想把文件从 Git 仓库中删除（ 亦即从暂存区(已经commit了也适用)域移除） ， 但仍然希望保留
 在当前工作目录中。 换句话说， 你想让文件保留在磁盘， 但是并不想让 Git 继续跟踪。 当你
 忘记添加 .gitignore 文件， 不小心把一个很大的日志文件或一堆 .a 这样的编译生成文件
 添加到暂存区时， 这一做法尤其有用。
