@@ -119,11 +119,17 @@ sendfile(socket, file, len);
 - sendfile则没有映射,适用于应用进程不需要对读取的数据做任何处理的场景。
 - 传统IO，用户空间通过read(),write()系统调用进行用户态与内核态的切换。
 - 0拷贝，应用程序通过sendfile系统调用使用zero copy.
+- https://www.jianshu.com/p/e76e3580e356 讲述了Linux2.4后的利用scatter与gather0拷贝
 - https://juejin.im/post/5c1c532551882579520b1f47
 - 参考网址：http://sound2gd.wang/2018/07/24/Java-NIO%E5%88%86%E6%9E%90-11-%E9%9B%B6%E6%8B%B7%E8%B4%9D%E6%8A%80%E6%9C%AF/ ，此里面含有Java使用2中0拷贝的例子。
 
+**Linux2.4版本后的zero copy:**
+- https://www.jianshu.com/p/e76e3580e356
+    - 讲述了Linux2.4后的利用scatter与gather0拷贝
+
 **内存文件映射：(结合0拷贝来看)**
 - 简要理解：磁盘文件与内存建立映射，这块内存相对JVM来说，是堆外内存，Java程序直接操作堆外内存(Buffer中通过address逻辑地址)，就可以反映到操作文件。
+- 首先堆外内存，是针对于JVM而言的，也就是不在JVM管控之外的内存，我们称之为堆外内存。 而共享内存，是指内核态和用户态共享一块内存，也就是内核态虚拟地址和用户态虚拟地址指向了同一个物理内存地址。
 - https://blog.csdn.net/Evankaka/article/details/48464013
 - https://blog.csdn.net/mg0832058/article/details/5890688
 
@@ -165,4 +171,4 @@ sendfile(socket, file, len);
 - 参考网址:
     - https://www.jianshu.com/p/36d20de2a1ee 
 
-
+****
