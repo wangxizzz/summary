@@ -143,6 +143,36 @@ sendfile(socket, file, len);
 
 **NIO的适用场景：多客户端连接，消息不是很大时 适用。**
 
+****
+
+**reactor模式**
+- 反应器模式
+- https://www.cnblogs.com/doit8791/p/7461479.html
+    - selector单线程同步调用READ、Write事件，如果READ、Write事件处理事件太长，那么就会影响整个selector下的其他channel的io操作。``` 具体的demo实例可以查看j2se/javaIO.网络IO.netty权威指南.netty.ch2.nio.TimeServerNio的例子演示。 ```
+    - 此篇文章中也有select同步阻塞介绍：Reactor模式在IO读写数据时还是在同一个线程中实现的，即使使用多个Reactor机制的情况下，那些共享一个Reactor的Channel如果出现一个长时间的数据读写，会影响这个Reactor中其他Channel的相应时间，比如在大文件传输时，IO操作就会影响其他Client的相应时间。
+- https://tech.meituan.com/2016/11/04/nio.html
+     - 此篇文章中也有select同步阻塞介绍，``` 以及与传统IO的比较优势,还介绍了Selector#wakeup()的介绍 ```
+- https://www.cnblogs.com/luxiaoxun/p/4331110.html 
+    - 此篇文章中也有select同步阻塞介绍
+    - 《Scalable IO in Java》笔记
+    - 介绍两个问题：
+        - （1）在Basic Reactor Design中，我看到每次来了一个ACCEPT请求的时候，Acceptor里面new Handler()的时候，都是注册READ事件，难道就没有刚开始连接的时候就注册WRITE事件的时候吗
+            - (1）这是server端的模型，server端被动的先read request，再write response。客户端模型是先write,然后注册Read事件。
+        - （2）依然是Basic Reactor Design里面，我发现Handler在处理完READ事件之后，就注册对应SocketChannel的WRITE事件，也就是说每一次连接，仍然是一个线程全程处理READ、Write事件，如果没有处理完，这个handler线程也无法处理其他的事情，这样相对“一个连接一个线程”的方法好像没有看到高效的地方。
+            - （2）在Basic Reactor Design里，就是一个线程处理读写，文章中说了。文中：“由于只有单个线程，所以处理器中的业务需要能够快速处理完。改进：使用多线程处理业务逻辑。”
+
+**Proactor和Reactor模型**
+- https://tech.meituan.com/2016/11/04/nio.html
+- https://www.zhihu.com/question/26943938
+- https://www.jianshu.com/p/96c0b04941e2
+
+**IO多路复用之select、poll、epoll详解**
+- https://www.jianshu.com/p/dfd940e7fca2
+    - 还介绍了5中IO模型
+
+
+****
+
 **字符编码：**
 - ASCII(American Standard Code Imformation Interchange)
     - 7 bit 来表示一个字符。共有128个字符(0 ~ 127)
