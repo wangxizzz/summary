@@ -148,18 +148,34 @@ sendfile(socket, file, len);
 **reactor模式**
 - 反应器模式
 - https://www.cnblogs.com/doit8791/p/7461479.html
-    - selector单线程同步调用READ、Write事件，如果READ、Write事件处理事件太长，那么就会影响整个selector下的其他channel的io操作。``` 具体的demo实例可以查看j2se/javaIO.网络IO.netty权威指南.netty.ch2.nio.TimeServerNio的例子演示。 ```
+    - selector单线程同步调用READ、Write事件，额外的意思就是在select获取可用channel的select线程会继续执行这个channel的READ、Write事件，如果READ、Write事件处理事件太长，那么就会影响整个selector下的其他channel的io操作。
     - 此篇文章中也有select同步阻塞介绍：Reactor模式在IO读写数据时还是在同一个线程中实现的，即使使用多个Reactor机制的情况下，那些共享一个Reactor的Channel如果出现一个长时间的数据读写，会影响这个Reactor中其他Channel的相应时间，比如在大文件传输时，IO操作就会影响其他Client的相应时间。
+    - ```当然映射到netty中就是在channelRead0方法，因此在channelRead0()中需要利用线程池异步执行耗时的逻辑，不能阻塞主select线程。``` ``` 具体的demo实例可以查看j2se/javaIO.网络IO.netty权威指南.netty.ch2.nio.TimeServerNio的例子演示。 ```
 - https://tech.meituan.com/2016/11/04/nio.html
      - 此篇文章中也有select同步阻塞介绍，``` 以及与传统IO的比较优势,还介绍了Selector#wakeup()的介绍 ```
 - https://www.cnblogs.com/luxiaoxun/p/4331110.html 
+    - ```介绍了3种reactor模式，在netty中使用的是Multiple Reactors(对应的是bossGroup与workerGroup， bossGroup只处理建立连接(Netty中的ServerBootstrapAcceptor)，workerGroup处理事件的转发，把对应Event转发到对应handler)```
     - 此篇文章中也有select同步阻塞介绍
     - 《Scalable IO in Java》笔记
     - 介绍两个问题：
         - （1）在Basic Reactor Design中，我看到每次来了一个ACCEPT请求的时候，Acceptor里面new Handler()的时候，都是注册READ事件，难道就没有刚开始连接的时候就注册WRITE事件的时候吗
             - (1）这是server端的模型，server端被动的先read request，再write response。客户端模型是先write,然后注册Read事件。
-        - （2）依然是Basic Reactor Design里面，我发现Handler在处理完READ事件之后，就注册对应SocketChannel的WRITE事件，也就是说每一次连接，仍然是一个线程全程处理READ、Write事件，如果没有处理完，这个handler线程也无法处理其他的事情，这样相对“一个连接一个线程”的方法好像没有看到高效的地方。
-            - （2）在Basic Reactor Design里，就是一个线程处理读写，文章中说了。文中：“由于只有单个线程，所以处理器中的业务需要能够快速处理完。改进：使用多线程处理业务逻辑。”
+        - （2）依然是Basic Reactor Design里面，我发现Handler在处理完READ事件之后，就注册对应SocketChannel的WRITE事件，也就是说每一次连接，```仍然是一个线程全程处理READ、Write事件，如果没有处理完，这个handler线程也无法处理其他的事情```，这样相对“一个连接一个线程”的方法好像没有看到高效的地方。
+            - （2）在Basic Reactor Design里，就是一个线程处理读写，文章中说了。文中：“由于只有单个线程，```所以处理器中的业务需要能够快速处理完。改进：使用多线程处理业务逻辑。```”
+
+**Reactor模型的5中组件介绍与netty：**
+- **Handle**：即操作系统中的句柄，是对资源在操作系统层面上的一种抽象，本质是一个资源，它可以是打开的文件、一个连接(Socket)、Timer等。由于Reactor模式一般使用在网络编程中，因而这里一般指Socket Handle，即一个网络连接（Connection，在Java NIO中的Channel）。这个Channel注册到Synchronous Event Demultiplexer中，以监听Handle中发生的事件，对ServerSocketChannnel可以是CONNECT事件，对SocketChannel可以是READ、WRITE、CLOSE事件等。
+- **Synchronous Event Demultiplexer(同步事件分离器)**：相当于NIO中的Selector。阻塞等待一系列的Handle中的事件到来，这个模块一般使用操作系统的select来实现。
+- **Event Handler(事件处理器)**：在NIO中没有对应，因为事件处理逻辑都是我们自己写的代码，比如read读，然后再写。但是在netty中存在事件处理器，提供了大量的事件回调方法，调用childHandler(new MyHandler())就可以对事件进行处理，比如在回调方法channelRegistered，channelUnregistered，channelActive等作出对应的逻辑。
+- **Concrete Event Handler(具体的事件处理器)**：继承自Event Handler。它本身实现了事件处理器所提供的各个回调方法，从而实现了业务逻辑。它本质就是我们编写的一个个处理器(handler)的实现，对应netty中的是MyHandler()。
+- **Initiation Dispatcher(初始分发器)**：用于管理Event Handler，即EventHandler的容器，用以注册、移除EventHandler等；另外，它还作为Reactor模式的入口调用Synchronous Event Demultiplexer的select方法以阻塞等待事件返回，当select等待返回时，根据事件发生的Handle将其分发给对应的Event Handler处理，即回调EventHandler中的handle_event()方法。
+
+**Netty中的Reactor模式**
+- 客户端建立连接与bossGroup打交道，bossGroup对应MainReactor,只处理连接事件(监听OP_ACCEPT事件)，里面包含一个selector,它select的是连接的到来。bossGroup把select的连接建立好的SelectionKey集合返回给workerGroup处理(否则的话，workerGroup哪知道哪些连接建立好了)，```这个是由ServerBootstrapAcceptor完成的```。每个SelectionKey里面都有获取key对应的channel方法，因此可以获取key对应的socketChannel，netty把socketChannel封装为NIOSocketChannel，并且把它注册到了workerGroup的Seletor上，然后Selector就不断的去轮询channel上的事件(OP_READ)，后续Client与Server的交互就是与workerGroup，而不是bossGroup。
+- workerGroup对应SubRactor，它关注连接建立好之后的read、write事件，里面包含一个selector。
+
+**Netty的回调方法：**
+- 由workerGroup里的IO线程执行。
 
 **Proactor和Reactor模型**
 - https://tech.meituan.com/2016/11/04/nio.html
@@ -167,9 +183,12 @@ sendfile(socket, file, len);
 - https://www.jianshu.com/p/96c0b04941e2
 
 **IO多路复用之select、poll、epoll详解**
+- https://www.cnblogs.com/lojunren/p/3856290.html 
+    - 详细介绍epoll所用数据结构mmap,红黑树，双向链表
 - https://www.jianshu.com/p/dfd940e7fca2
-    - 还介绍了5中IO模型
 
+**Linux中5中IO模型**
+- https://www.jianshu.com/p/486b0965c296
 
 ****
 
