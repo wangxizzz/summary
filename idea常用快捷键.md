@@ -33,3 +33,5 @@
 14、ctrl+alt+u 查看类图。alt可以放大。
 
 15、ctrl + i 可以查看impl需要实现的方法
+
+16、ctrl + alt + L 格式化代码
