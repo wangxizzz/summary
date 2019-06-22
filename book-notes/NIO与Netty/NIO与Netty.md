@@ -166,9 +166,9 @@ sendfile(socket, file, len);
 **Reactor模型的5中组件介绍与netty：**
 - **Handle**：即操作系统中的句柄，是对资源在操作系统层面上的一种抽象，本质是一个资源，它可以是打开的文件、一个连接(Socket)、Timer等。由于Reactor模式一般使用在网络编程中，因而这里一般指Socket Handle，即一个网络连接（Connection，在Java NIO中的Channel）。这个Channel注册到Synchronous Event Demultiplexer中，以监听Handle中发生的事件，对ServerSocketChannnel可以是CONNECT事件，对SocketChannel可以是READ、WRITE、CLOSE事件等。
 - **Synchronous Event Demultiplexer(同步事件分离器)**：相当于NIO中的Selector。阻塞等待一系列的Handle中的事件到来，这个模块一般使用操作系统的select来实现。
-- **Event Handler(事件处理器)**：在NIO中没有对应，因为事件处理逻辑都是我们自己写的代码，比如read读，然后再写。但是在netty中存在事件处理器，提供了大量的事件回调方法，调用childHandler(new MyHandler())就可以对事件进行处理，比如在回调方法channelRegistered，channelUnregistered，channelActive等作出对应的逻辑。
-- **Concrete Event Handler(具体的事件处理器)**：继承自Event Handler。它本身实现了事件处理器所提供的各个回调方法，从而实现了业务逻辑。它本质就是我们编写的一个个处理器(handler)的实现，对应netty中的是MyHandler()。
-- **Initiation Dispatcher(初始分发器)**：用于管理Event Handler，即EventHandler的容器，用以注册、移除EventHandler等；另外，它还作为Reactor模式的入口调用Synchronous Event Demultiplexer的select方法以阻塞等待事件返回，当select等待返回时，根据事件发生的Handle将其分发给对应的Event Handler处理，即回调EventHandler中的handle_event()方法。
+- **Event Handler(事件处理器)**：在NIO中没有对应，因为事件处理逻辑都是我们自己写的代码，比如read读，然后再写。但是在netty中存在事件处理器，提供了大量的事件回调方法，调用childHandler(new MyHandler())就可以对事件进行处理，比如在回调方法channelRegistered，channelUnregistered，channelActive,channelRead0()等作出对应的逻辑。
+- **Concrete Event Handler(具体的事件处理器)**：继承自Event Handler。它本身实现了事件处理器所提供的各个回调方法，从而实现了业务逻辑。它本质就是我们编写的一个个处理器(handler)的实现，对应netty中的是MyHandler(),或者netty提供的handler如编解码handler。
+- **Initiation Dispatcher(初始分发器)**：相当于Reactor 。用于管理Event Handler，即EventHandler的容器，用以注册、移除EventHandler等；另外，它还作为Reactor模式的入口调用Synchronous Event Demultiplexer的select方法以阻塞等待事件返回，当select等待返回时，根据事件发生的Handle将其分发给对应的Event Handler处理，即回调EventHandler中的handle_event()方法。
 
 **Netty中的Reactor模式**
 - 客户端建立连接与bossGroup打交道，bossGroup对应MainReactor,只处理连接事件(监听OP_ACCEPT事件)，里面包含一个selector,它select的是连接的到来。bossGroup把select的连接建立好的SelectionKey集合返回给workerGroup处理(否则的话，workerGroup哪知道哪些连接建立好了)，```这个是由ServerBootstrapAcceptor完成的```。每个SelectionKey里面都有获取key对应的channel方法，因此可以获取key对应的socketChannel，netty把socketChannel封装为NIOSocketChannel，并且把它注册到了workerGroup的Seletor上，然后Selector就不断的去轮询channel上的事件(OP_READ)，后续Client与Server的交互就是与workerGroup，而不是bossGroup。
@@ -176,6 +176,9 @@ sendfile(socket, file, len);
 
 **Netty的回调方法：**
 - 由workerGroup里的IO线程执行。
+
+**ChannelHandlerContext是ChannelHandler与channelPipeline之间的桥梁与纽带。**
+
 
 **Proactor和Reactor模型**
 - https://tech.meituan.com/2016/11/04/nio.html
