@@ -50,6 +50,13 @@
 5.w/who 可以查看登录用户的信息
 
 ## 对系统进程的管理
+- -A ：所有的进程均显示出来，与 -e 具有同样的效用；
+- -a ： 显示现行终端机下的所有进程，包括其他用户的进程；
+- -u ：以用户为主的进程状态 ；
+- -x ：通常与 a 这个参数一起使用，可列出较完整信息。
+
+ps -aux 与 ps -ef 的输出信息相同。
+
 1..ps -efo pid,comm,pcpu | head -n 5 可以查看指定参数的进程信息
 - -e : 代表every
 - -f :　full 显示多列信息
@@ -81,6 +88,9 @@ ps [OPTIONS] --sort -paramter1,+parameter2,parameter3..
 3.**线程信息**:
 - ps -eLf --sort -nlwp | head 该命令列出了线程数最多的10个进程
     - nlwp 表示进程的线程数量.
+- 更多信息可以参考
+    - ps --help
+        - 然后根据提示选择ps --help t 就可以参看有关线程的信息
 
 4.**which 、 whereis 、 file 、 whatis：**
 - which ls 列出ls命令的位置
@@ -90,6 +100,13 @@ ps [OPTIONS] --sort -paramter1,+parameter2,parameter3..
 - whatis ls 
 
 5.**netstat命令：**
+
+**用法介绍：**
+- netstat -nptl
+    - n表示直接使用ip地址，而不通过域名服务器，p表示进程，t表示tcp，l表示监听(listening)
+- 
+
+**命令选项参考如下：**
 - -a或--all：显示所有连线中的Socket； 
 - -A<网络类型>或--<网络类型>：列出该网络类型连线中的相关地址； 
 - -c或--continuous：持续列出网络状态； 
