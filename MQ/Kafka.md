@@ -8,6 +8,12 @@
 
 kafka启动
 - 先启动自带zk：./zookeeper-server-start.sh -daemon ../config/zookeeper.properties
-- 再启动kafka: ./kafka-server-start.sh -daemon ../config/server.properties(启动端口为9092)
+- 再启动kafka: ./kafka-server-start.sh -daemon ../config/server.properties(启动端口为9092,此时broker监听的端口是9092)
 - 可以再启动zk-shell：  ./zookeeper-shell.sh localhost:2181
+- 在kafka命令行创建topic: ./kafka-topics.sh --create --topic java_topic --zookeeper localhost:2181 --partitions 1 --replication-factor 1
+- 命令行创建producer客户端:./kafka-console-producer.sh --topic test --broker-list 192.168.1.102:9092
+- 命令行创建consumer客户端：./kafka-console-consumer.sh --topic test --bootstrap-serve 192.168.1.102:9092
+- 命令行创建consumer客户端： ./kafka-console-consumer.sh --topic test --bootstrap-serve 192.168.1.102:9092 --from-beginning 加上--from-beginning可以从头开始pull生产者端的消息。
+- ```注意：```**把配置文件中的所有localhost或者默认主机名都换成虚拟机的ip地址，这样可以减少很多windows与虚拟机通信的问题。**
 
+HDD传统机械硬盘。SSD固态硬盘。
