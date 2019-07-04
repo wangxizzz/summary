@@ -177,8 +177,41 @@ sendfile(socket, file, len);
 **Netty的回调方法：**
 - 由workerGroup里的IO线程执行。
 
-**ChannelHandlerContext是ChannelHandler与channelPipeline之间的桥梁与纽带。**
+**负载算法：**
+- 随机算法：
+    - 随机产生一个随机数，打到那台机器上去。
+- 轮询：
+    - 在一个后端的机器列表，不断是循环这些列表元素。1,2,3,4...n,1,2,3,4,5....
+- 上面两种算法比较：在样本(请求数量足够多的情况下，随机数与轮询的结果效率是相同的)，如果请求比较小的情况，比如几百，那么使用轮询，负载更好。
+- 加权轮询：
+    - 让请求更多的打到配置更好的机器。
+- 
 
+**简单算法源码介绍**
+取数组元素的低几位：（Netty的next EventExector的取法与HashMap的hash根据key获取桶的做法相同）
+```java
+private final AtomicInteger idx = new AtomicInteger();  // 初始化为0
+
+public EventExecutor next() {
+    // 只取数组长度的位数(这种针对length是2的幂)，如果是2的幂，这种方式性能更好。
+    return executors[idx.getAndIncrement() & executors.length - 1];
+}
+
+// 还有一种办法就是对数组length取模(针对数组元素不是2的幂)
+public EventExecutor next() {
+    return executors[Math.abs(idx.getAndIncrement() % executors.length)];
+}
+```
+
+**ChannelHandlerContext是ChannelHandler与channelPipeline之间的桥梁与纽带。**
+- 每调用channelpipeline的addLast(ChannelHandler handler)方法,都会把handler封装成ChannelHandlerContext，然后添加到链表的tail节点的前面。也就是说，一个channelHandler对应一个ChannelHandlerContext对象。
+
+**EventLoop与EventLoopGroup的关系(Netty的线程模型)**
+- 一个EventLoopGroup里面包含一个或多个EventLoop;
+- 一个EventLoop在它的整个生命周期中只会与唯一一个Thread绑定;
+- 所有由EventLoop所处理的IO事件都将由它所关联的Thread进行处理；
+- 一个channel(本质是一个连接)在它的整个生命周期中，只会注册到一个EventLoop上，这句话的意思就是在这个channel中的handler的执行就有这个EventLoop关联的唯一线程执行，因此handler的执行不会涉及到多线程的问题；
+- 一个EventLoop在运行过程当中，会被分配给一个或多个channel.(意思就是说，一个Thread可以处理很多channel，这正是netty处理高并发的优势)
 
 **Proactor和Reactor模型**
 - https://tech.meituan.com/2016/11/04/nio.html
