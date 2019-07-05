@@ -289,6 +289,30 @@ boolean isDone();
 - **Netty中如何知道Future完成了呢？**
     - 是通过Promise(承诺)接口提供的setSuccess()、setFailure()设置的，设置完成之后然后通知监听器。很多channel操作都带了promise参数。
 
+**netty的垃圾回收机制及如何实现自己的handler?**
+- 参照SimpleChannelInboundHandler的源码分析注释。
+
+**Netty中ctx.writeAndFlush与ctx.channel().writeAndFlush的区别**
+- 参考网址：直接看文章后面的结论
+    - https://blog.csdn.net/FishSeeker/article/details/78447684
+- 总结：
+    - ChannelHandlerContext与ChannelHandler之间的绑定关系永远不会改变，因此我们对其缓存是没有任何问题的，他们是一对一的关系。
+    - ```这两个方法的作用于不一样，调用channel的writeAndFlush,作用域是从channel的最后一个出站handler开始往外写,而ctx.writeAndFlush方法的作用域是从当前的handler的下一个handler开始往外写，相当于短路了.```
+    - ```从上面可以看出，ctx.writeAndFlush提供了更短的事件流，那么我们就可以利用这个特性提升性能(用的比较少)```
+    - 除了上面这个writeAndFlush同名方法，在ctx于channel里面有很多的同名方法，原理相同，以此类推。
+
+**一个Client吧消息发个Server1，然后Server1又作为客户端再把消息妆发给Server2，怎么处理？**
+- 此时Server1在中间做了一层代理，既充当客户端也充当服务端。```此时的最佳实践是Server1客户端与服务端代码使用同一个EventLoop。因为针对Server1为客户端来说，一个EventLoop来发起连接就行。```
+
+具体的的伪代码如下：
+```java
+// 此时在Server1的channelActive方法中，Server1作为服务端接收客户端消息，然后又作为客户端把消息发给Server2
+public void channelActive(ChannelHandlerContext ctx) {
+    BootStrap bootstrap = new BootStrap();
+    bootstrap.group(ctx.channel().eventLoop())   // 关键代码在此,此种方式是最佳实践
+        .channel(NIOSocketChannel).....省略其他代码
+}
+```
 
 **Proactor和Reactor模型**
 - https://tech.meituan.com/2016/11/04/nio.html
