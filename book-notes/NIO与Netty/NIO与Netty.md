@@ -141,7 +141,7 @@ sendfile(socket, file, len);
 
 **每调用线程池的execute()或者submit(),都会起一个线程(重用或者新创建Thread)**
 
-**NIO的适用场景：多客户端连接，消息不是很大时 适用。**
+**NIO(Netty)的适用场景：多客户端连接，消息不是很大时 适用。**
 
 ****
 
@@ -187,9 +187,11 @@ sendfile(socket, file, len);
     - 让请求更多的打到配置更好的机器。
 - 
 
-**简单算法源码介绍**
+**取数组元素的低几位de简单算法源码介绍:本质是循环队列**  
 取数组元素的低几位：（Netty的next EventExector的取法与HashMap的hash根据key获取桶的做法相同）
 ```java
+// 这个是在服务端channel注册时的代码
+
 private final AtomicInteger idx = new AtomicInteger();  // 初始化为0
 
 public EventExecutor next() {
@@ -205,13 +207,88 @@ public EventExecutor next() {
 
 **ChannelHandlerContext是ChannelHandler与channelPipeline之间的桥梁与纽带。**
 - 每调用channelpipeline的addLast(ChannelHandler handler)方法,都会把handler封装成ChannelHandlerContext，然后添加到链表的tail节点的前面。也就是说，一个channelHandler对应一个ChannelHandlerContext对象。
+- 每初始化一个channel，都会new出一个DefaultChannelPipeline对象。
 
 **EventLoop与EventLoopGroup的关系(Netty的线程模型)**
 - 一个EventLoopGroup里面包含一个或多个EventLoop;
 - 一个EventLoop在它的整个生命周期中只会与唯一一个Thread绑定;
-- 所有由EventLoop所处理的IO事件都将由它所关联的Thread进行处理；
-- 一个channel(本质是一个连接)在它的整个生命周期中，只会注册到一个EventLoop上，这句话的意思就是在这个channel中的handler的执行就有这个EventLoop关联的唯一线程执行，因此handler的执行不会涉及到多线程的问题；
-- 一个EventLoop在运行过程当中，会被分配给一个或多个channel.(意思就是说，一个Thread可以处理很多channel，这正是netty处理高并发的优势)
+- 所有由EventLoop所处理的IO事件都将由它所关联的Thread(也可称为IO线程)进行处理；
+- 一个channel(本质是一个连接)在它的整个生命周期中，只会注册到一个EventLoop上，```这句话的意思就是在这个channel中的handler的执行就由这个EventLoop关联的唯一线程执行，因此handler的执行不会涉及到多线程的问题,因为这个channel都是单线程的；```
+- 一个EventLoop在运行过程当中，会被分配给一个或多个channel.```(意思就是说，一个Thread可以处理很多channel，这正是netty处理高并发的优势，因此绝对不能把这一个线程给阻塞住了，因为这一个线程将要服务成千上万的channel处理，这也正好印证了netty的应用场景:多客户端连接，消息不是很大时 适用)```
+- **应用：**
+    - 所以，根据线程模型：Channel在执行任何操作时，都会先判断执行这个操作的线程是否是EventLoop所关联的唯一线程，如果是那么就直接执行，此时是单线程执行，屏蔽了多线程的问题。如果不是当前的EventLoop，那么Netty就会以一个任务的方式提交给这个EventLoop，让它去执行。
+- **基于上面的模型得出的结论：**
+    - **Channel的实现本身是线程安全的。基于此，我们可以存储一个channel的引用(比如把这个引用存储在缓存中)，并且在需要向远程端点发送数据时，通过这个引用来调用相应的方法(比如调用write、flush方法写数据)，即便当时有很多线程同时访问，也不会出现线程安全的问题，而且消息一定会按照顺序发送出去，因为channel的任务操作底层是通过队列保证FIFO的。**
+
+**与上述线程模型对应的代码如下：**
+```java
+// 位于AbstractChannel中
+@Override
+public final void register(EventLoop eventLoop, final ChannelPromise promise) {
+    if (eventLoop == null) {
+        throw new NullPointerException("eventLoop");
+    }
+    if (isRegistered()) {
+        promise.setFailure(new IllegalStateException("registered to an event loop already"));
+        return;
+    }
+    if (!isCompatible(eventLoop)) {
+        promise.setFailure(
+                new IllegalStateException("incompatible event loop type: " + eventLoop.getClass().getName()));
+        return;
+    }
+
+    AbstractChannel.this.eventLoop = eventLoop;
+    // 在这里判断调用此方法的线程是否是SingleThreadEventLoop的成员变量thread
+    /**
+        * 为什么需要这样子判断？
+        * 这和netty的线程模型有关。这么做的目的是在注册channel的时候只有一个Thread来操作，防止多线程
+        * 并发注册发生问题，这也是netty设计的很巧妙的地方。
+        * 因为一个EventLoop只有一个唯一的Thread与之绑定(详细可参考读书笔记)。
+        */
+    if (eventLoop.inEventLoop()) {   // 如果是统一线程直接注册
+        register0(promise);
+    } else {            // 否则，就交给EventLoop执行，EventLoop只有一个唯一的Thread与之绑定，因此避免了多线程并发问题
+        try {
+            eventLoop.execute(new Runnable() {
+                @Override
+                public void run() {
+                    register0(promise);
+                }
+            });
+        } catch (Throwable t) {
+            logger.warn(
+                    "Force-closing a channel whose registration task was not accepted by an event loop: {}",
+                    AbstractChannel.this, t);
+            closeForcibly();
+            closeFuture.setClosed();
+            safeSetFailure(promise, t);
+        }
+    }
+}
+
+```
+**Netty的异步读写与观察者模式：**
+```java
+// jdk1.5中的Future的isDone()的解释如下：
+/**
+    * Returns {@code true} if this task completed.
+    *返回true,可能正常的结束或者异常或者被取消了。这也是jdk1.5的缺点，在netty做了很多优化
+    * Completion may be due to normal termination, an exception, or
+    * cancellation -- in all of these cases, this method will return
+    * {@code true}.
+    *
+    * @return {@code true} if this task completed
+    */
+boolean isDone();
+```
+- Future(未来):
+    - 异步操作，让耗时的业务快速返回，如果利用同步，那么就一直等待耗时业务执行完，才能再往下执行。
+    - JDK的Future的缺点：让开发者主动去获取结果，我们也不知道结果返回的确切时间，只能通过循环调用isDone()方法轮询或者调用get()方法阻塞住，这样对用户不友好；还有isDone()返回true,可能正常的结束或者异常或者被取消了,这给用户带来了任务到底完成没得困扰。
+    - 在JDK8中提供CompletableFuture提供了监听器回调方法。这与Netty、Guava的回调实现思想相同；在Netty的Future类中提供了很多判断是否成功的方法，比如isSuccess()等。
+- **Netty中如何知道Future完成了呢？**
+    - 是通过Promise(承诺)接口提供的setSuccess()、setFailure()设置的，设置完成之后然后通知监听器。很多channel操作都带了promise参数。
+
 
 **Proactor和Reactor模型**
 - https://tech.meituan.com/2016/11/04/nio.html
