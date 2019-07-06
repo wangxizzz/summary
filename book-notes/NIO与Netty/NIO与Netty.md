@@ -53,9 +53,6 @@
 
 复制的原理是将源文件的副本拷贝到内存的一块缓冲区中，也就是我们说的剪贴板。缓冲区容量有限，遇到大文件会分批进行拷贝 ，只不过我们不会察觉。同时不断将缓冲区内的数据写入到目标位置。即完成文件复制。剪切比其多一个步骤，就是在```复制完成后```将源文件删除，即在文件分配表中为源文件标上删除标记。因此剪切比复制要慢。  
 
-**9.reactor模型**：  
-
-
 10.epoll所带来的优势：  
 - 持有更多的文件句柄数（与系统内存有关）；
 - 以前是线性扫描整个socket集合，看哪个准备好了，现在是“活跃“的socket主动去掉callback函数，其他idle的socket就不会。
@@ -98,6 +95,7 @@ sendfile(socket, file, len);
 
 ****
 **nio Buffer 中 compact的作用**
+- 解决buffer中数据没有读完的问题。
 - 我们在 write 后，执行 buffer.compact()将没有发出的数据复制到 buffer 的开始位置，posittion = limit-position,limit = capacity,这样在下一次read(buffer)的时候，数据就会继续添加到缓冲的后面了
 - 参考网址：https://blog.csdn.net/jiang_bing/article/details/7878390
 
@@ -115,6 +113,8 @@ sendfile(socket, file, len);
 - 每个 socket 被创建后，都会分配两个缓冲区，输入缓冲区和输出缓冲区。write()/send() 并不立即向网络中传输数据，而是先将数据写入缓冲区中，再由TCP协议将数据从缓冲区发送到目标机器。一旦将数据写入到缓冲区，函数就可以成功返回，不管它们有没有到达目标机器，也不管它们何时被发送到网络，这些都是TCP协议负责的事情。TCP协议独立于 write()/send() 函数，数据有可能刚被写入缓冲区就发送到网络，也可能在缓冲区中不断积压，多次写入的数据被一次性发送到网络，这取决于当时的网络情况、当前线程是否空闲等诸多因素，不由程序员控制。read()/recv() 函数也是如此，也从输入缓冲区中读取数据，而不是直接从网络中读取。
 - https://www.jianshu.com/p/de482fc0e9fb
 
+****
+
 **Java NIO零拷贝技术**
 - sendfile则没有映射,适用于应用进程不需要对读取的数据做任何处理的场景。
 - 传统IO，用户空间通过read(),write()系统调用进行用户态与内核态的切换。
@@ -122,6 +122,7 @@ sendfile(socket, file, len);
 - https://www.jianshu.com/p/e76e3580e356 讲述了Linux2.4后的利用scatter与gather0拷贝
 - https://juejin.im/post/5c1c532551882579520b1f47
 - 参考网址：http://sound2gd.wang/2018/07/24/Java-NIO%E5%88%86%E6%9E%90-11-%E9%9B%B6%E6%8B%B7%E8%B4%9D%E6%8A%80%E6%9C%AF/ ，此里面含有Java使用2中0拷贝的例子。
+- https://www.zhihu.com/question/57374068 **从JVM的角度解释了HeapBuffer与DirectBuffer。细看**
 
 **Linux2.4版本后的zero copy:**
 - https://www.jianshu.com/p/e76e3580e356
@@ -313,6 +314,20 @@ public void channelActive(ChannelHandlerContext ctx) {
         .channel(NIOSocketChannel).....省略其他代码
 }
 ```
+
+****
+**在网络中传输数据，一定是以字节的方式传输的，不管这个数据之前是什么类型的,这与网络协议有关。**
+**字符转化为字符串，一定需要指定字符集编码。**
+**所谓数组的扩容，就是重新创建一个更大的数组，然后把源数据拷贝到新数组。**
+
+**Netty的ByteBuf：**
+- 具体可以参照ByteBuf的javadoc，有注释。
+- netty中存储对象有两种方式：
+    - 池化：把对象放在poll中
+    - 非池化，对象用完就销毁。
+- ByteBuf底层是一个字节数组，利用两个指针readIndex、writeIndex来分别表示读写。起初他们索引都为0，如果写，那么writeIndex++,写了几个后读取，然后readIndex++，直到小于writeIndex(不能等于，可以参照AbstractByteBuf#isReadable源码),这样在读写切换时，并不需要象ByteBuffer(NIO中)调用flip()。Netty的ByteBuf使操作更加简单。
+- 通过直接方式访问ByteBuf的数据，比如调用ByteBuf#getByte(int index),这种方式在底层并不会改变readIndex与writeIndex的值。可以参考netty-parent工程的bytebuf包的ByteBufTest0例子.
+- 
 
 **Proactor和Reactor模型**
 - https://tech.meituan.com/2016/11/04/nio.html
