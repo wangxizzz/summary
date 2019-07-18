@@ -326,8 +326,14 @@ public void channelActive(ChannelHandlerContext ctx) {
     - 池化：把对象放在poll中
     - 非池化，对象用完就销毁。
 - ByteBuf底层是一个字节数组，利用两个指针readIndex、writeIndex来分别表示读写。起初他们索引都为0，如果写，那么writeIndex++,写了几个后读取，然后readIndex++，直到小于writeIndex(不能等于，可以参照AbstractByteBuf#isReadable源码),这样在读写切换时，并不需要象ByteBuffer(NIO中)调用flip()。Netty的ByteBuf使操作更加简单。
-- 通过直接方式访问ByteBuf的数据，比如调用ByteBuf#getByte(int index),这种方式在底层并不会改变readIndex与writeIndex的值。可以参考netty-parent工程的bytebuf包的ByteBufTest0例子.
-- 
+- 通过直接方式访问ByteBuf的数据，比如调用ByteBuf#getByte(int index),这种方式在底层并不会改变readIndex与writeIndex的值，直接利用索引访问。可以参考netty-parent工程的bytebuf包的ByteBufTest0例子.
+- **对于后端业务消息的编码来说，推荐使用HeapByteBuf,而对于I/O通信线程在读写缓冲区时，推荐使用DirectByteBuf,因为这会减少数据的拷贝。**
+    - 参考网址：https://www.zhihu.com/question/57374068
+
+**Netty的ByteBuf深入分析与引用计数GC算法分析：**
+- 81-84 
+
+
 
 **Proactor和Reactor模型**
 - https://tech.meituan.com/2016/11/04/nio.html
