@@ -52,7 +52,7 @@ select goods_id,goods_name from goods where goods_id = (select max(goods_id) fro
 优化方式：
 可以使用连接查询（JOIN）代替子查询，连接查询不需要建立临时表，因此其速度比子查询快。
 
-3.Guava中不可变的Map:
+3.**Guava中不可变的Map:**
 
 ImmutableMap
 ```java
@@ -113,7 +113,7 @@ public class PreFeeRequestModel extends RequestModel{
 ```上述错误原因解释：```
 Java中只要调用子类的构造函数就一定会调用父类的构造函数，这是毋庸置疑的！有时我们并没有在父类中写有参和无参的构造方法，但是这样我们在定义子类对象时调用子类构造函数时，其实也调用父类的构造函数，这是系统自动为我们添加的“public Pen(){}”。但是如果我们在父类中已经自己定义了有参的构造方法，却没有定义无参的构造方法，那么此时系统是不会为我们自动添加无参的构造方法的，此时程序结果就会提醒你父类没有无参的构造方法，程序就会报错。
 
-8.Spring中的BeanUtils：  
+8.**Spring中的BeanUtils：**  
 BeanUtils.copyProperties 是一个浅拷贝方法，复制属性时，我们只需要把 DTO 对象和要转化的对象两个的属性值设置为一样的名称，并且保证一样的类型就可以了。  
 ```如果两个类的属性不一样(属性个数，属性类型)，那么copy后的结果就是属性值为null.```
 
@@ -140,10 +140,10 @@ https://blog.csdn.net/Gred01/article/details/78533390 介绍常用的用法
 如果上述类型与注解使用错误，会抛异常。
 https://www.jianshu.com/p/e70cb8ba8f48 列出了各个注解的用法
 
-10.Preconditions参数校验机制：让前置条件判断变得更优雅    
+10.**Preconditions参数校验机制：让前置条件判断变得更优雅**    
 https://blog.csdn.net/zivensonice/article/details/51912188
 
-11.joda time 使用参考：
+11.**joda time 使用参考**：
 - code refactoring工程的demo02
 - https://blog.csdn.net/qq_36838191/article/details/81296987 介绍了DateTime(相当于Calendar)的操作
 - joda time 对日期的格式化    https://www.jianshu.com/p/cb4521194707
@@ -163,7 +163,7 @@ https://www.cnblogs.com/snidget/archive/2013/02/05/2893344.html
 https://www.cnblogs.com/lanxuezaipiao/p/3369962.html#top  
 也可以参考j2se工程的java高级知识
 
-15.抽象类和Interface相同，不能创建对象(直接new 会变成匿名内部类的方式创建),但是Abstract class有构造函数。
+15.**抽象类和Interface相同，不能创建对象(直接new 会变成匿名内部类的方式创建),但是Abstract class有构造函数。**
 
 16.**java annotation总结：**  
 详细参考网址：  
@@ -221,4 +221,11 @@ https://www.cnblogs.com/paddix/p/5381958.html
 
 ```join方法``` join方法的作用是父线程等待子线程执行完成后再执行，换句话说就是将异步执行的线程合并为同步的线程。
 
-19.
+19.**Java中钩子与回调方法**  
+首先，callback和“钩子”是两个完全不同的概念，callback是指：由我们自己实现的，但是预留给系统调用的函数，我们自己是没有机会调用的，但是我们知道系统在什么情况下会调用该方法。而“钩子”是指：声明在抽象类中的方法，只有空的或默认的实现，```通常应用在模板设计模式中```，让子类可以对算法的不同点进行选择或挂钩，要不要挂钩由子类决定。    
+**举个例子**
+- 参考网址：https://www.cnblogs.com/yanlong300/p/8446261.html
+
+那么什么是回调函数呢？我认为，回调函数就是预留给系统调用的函数，而且我们往往知道该函数被调用的时机。这里有两点需要注意：第一点，我们写回调函数不是给自己调用的，而是准备给系统在将来某一时刻调用的；第二点，我们应该知道系统在什么情形下会调用我们写的回调函数。
+
+20.****
