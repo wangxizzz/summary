@@ -43,58 +43,10 @@ debug：不重要的日志， 一般不用，用的时候要加log.isDebugEnable
 当日志级别在DEBUG以下时，log.debug("hello, this is " + name)就不会执行，从而没有字符串拼接的开销。
 JIT在运行时会优化if语句，如果isDebugEnabled()返回false, 则JIT会将整个if块全部去掉。 
 
-3.```AOP```:  
-**Spring仅支持方法的连接点**
-表达式意思:https://blog.csdn.net/loongshawn/article/details/72303040
-
-"execution(* com.test.method.aaaa..*.*(..))"
-|标识符|含义|
-|--|--|
-|第一个"*"符号|表示任意返回值类型|
-|com.test.method.aaaa|AOP所切的服务的包名，即，需要进行横切的业务类|
-|包名后面的".."|表示当前包或者子包或者子包的子包|
-|第二个“*”|表示类名，*即所有类|
-|.*(..)|表示任何方法名，括号表示参数，两个点表示任何参数类型|
-
-**几个注解**
-- 参考网址:https://zhuanlan.zhihu.com/p/25891989
-- Before:在方法之前执行,可以做一些权限的验证
-- After:@AfterReturning增强处理只有在目标方法成功完成后才会被织入，但@After不管目标方法怎么被结束，都会被织入.
-- @Around: advice的方法第一个形参必须是ProceedingJoinPoint类型，```方法体内调用ProceedingJoinPoint参数的proceed()方法才会执行目标函数```。调用这个方法时，还可以传入一个Object[]对象作为参数，该数组中的值将被传入目标方法作为执行方法的实参。看下面的例子:
-```java
-@Aspect
-public class AroundTest {
-@Around("execution(* aaa.*.*(..))")
-public Object test(ProceedingJoinPoint joinPoint) throws Throwable {
-        System.out.println("=======Around开始=======");
-        Object[] args = joinPoint.getArgs();
-        System.out.println("=======Around=======ProceedingJoinPoint是 " + joinPoint.toString());
-        System.out.println("=======Around=======目标方法的传入参数是 " + args);
-        Object rvt = joinPoint.proceed(args); // 执行目标函数,正常返回则跳回这里.
-        System.out.println("=======Around结束=======");
-        return rvt;
-    }
-}
-执行结果:
-=======Around开始=======  
-=======Around=======ProceedingJoinPoint是 execution(int aaa.World.getNum())  
-=======Around=======目标方法的传入参数是 [Ljava.lang.Object;@1757cd72  
-=======执行目标方法==========  
-=======Around结束=======
-```
-通过joinPoint调用的方法:
-```java
-Object[] getArgs()：//返回执行目标方法时的参数
-
-Signature getSignature()：//返回被增强的方法的相关信息。
-
-Object getTarget()：//返回被织入advice的目标对象
-
-Object getThis()：//返回AOP框架为目标对象生成的代理对象java
-
-```
-
-**执行顺序**:Around，Before，执行，如果正常结束，就是Around，After，AfterReturning；如果抛出异常，就是AfterThrowing，After。 
+3.**SpringAOP**:  
+- https://blog.csdn.net/lmb55/article/details/82470388  使用与切入点表达式很详细
+- https://www.cnblogs.com/hongwz/p/5764917.html  AOP的概念
+- https://blog.csdn.net/jiankunking/article/details/52244517
 
 4.java的System.currentTimeMillis()和System.nanoTime()区别: 
 
@@ -164,7 +116,7 @@ public String baseInfoCompany(@Valid UserInputDTO userInputDTO) {
 11.**Spring的bean的id、name、别名之间的关系以及getBean()源码分析**   
 https://blog.csdn.net/hongxingxiaonan/article/details/49835861
 
-12.
+12.**Spring controller方法的入参是单例还是多例？**
 
 
 
