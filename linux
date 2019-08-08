@@ -46,6 +46,9 @@
             sort -n -k1　参数解释：-n　按照数字排序，-k1表示第一列(k 代表key 键)　　参照上面网址。
     如何查看所有异常和异常栈；
         grep参数解释：https://blog.csdn.net/u011003120/article/details/52185356
+            -i : 忽略大小写(针对单个字符)
+            -e : 可以使用多个正则匹配
+            
         grep (global search regular expression(RE) and print out the line,
         全面搜索正则表达式并把行打印出来)是一种强大的文本搜索工具，它能使用正则表达式搜索文本，并把匹配的行打印出来。
         
