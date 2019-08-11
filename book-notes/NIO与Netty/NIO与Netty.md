@@ -210,6 +210,12 @@ public EventExecutor next() {
 - 每调用channelpipeline的addLast(ChannelHandler handler)方法,都会把handler封装成ChannelHandlerContext，然后添加到链表的tail节点的前面。也就是说，一个channelHandler对应一个ChannelHandlerContext对象。
 - 每初始化一个channel，都会new出一个DefaultChannelPipeline对象。
 
+**ChannelHandler的@Sharable用法：**
+- 标注一个channel handler可以被多个channel安全地共享。
+ChannelHandlerAdapter还提供了实用方法isSharable()。如果其对应的实现被标注为Sharable，那么这个方法将返回true，表示它可以被添加到多个ChannelPipeline中。因为一个ChannelHandler可以从属于多个ChannelPipeline，所以它也可以绑定到多个ChannelHandlerContext实例。用于这种用法的ChannelHandler必须要使用@Sharable注解标注；否则，试图将它添加到多个ChannelPipeline时将会触发异常。**显而易见，为了安全地被用于多个并发的Channel（即连接），这样的ChannelHandler必须是线程安全的。**
+- 链接：https://www.jianshu.com/p/b241e3800fc0
+
+
 **EventLoop与EventLoopGroup的关系(Netty的线程模型)**
 - 一个EventLoopGroup里面包含一个或多个EventLoop;
 - 一个EventLoop在它的整个生命周期中只会与唯一一个Thread绑定;
@@ -247,7 +253,7 @@ public final void register(EventLoop eventLoop, final ChannelPromise promise) {
         * 并发注册发生问题，这也是netty设计的很巧妙的地方。
         * 因为一个EventLoop只有一个唯一的Thread与之绑定(详细可参考读书笔记)。
         */
-    if (eventLoop.inEventLoop()) {   // 如果是统一线程直接注册
+    if (eventLoop.inEventLoop()) {   // 如果是同一线程直接注册
         register0(promise);
     } else {            // 否则，就交给EventLoop执行，EventLoop只有一个唯一的Thread与之绑定，因此避免了多线程并发问题
         try {
@@ -333,7 +339,8 @@ public void channelActive(ChannelHandlerContext ctx) {
 **Netty的ByteBuf深入分析与引用计数GC算法分析：**
 - 81-84 
 
-
+**TCP_NODELAY选项**
+- https://www.jianshu.com/p/ccafdeda0b95
 
 **Proactor和Reactor模型**
 - https://tech.meituan.com/2016/11/04/nio.html
