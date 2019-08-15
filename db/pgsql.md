@@ -9,7 +9,7 @@
 **spring单元测试：**
 - https://juejin.im/post/5b95dbe46fb9a05cd7772503
 
-**restTemplate使用**
+**restTemplate使用**  GET、POST发送对象怎么用？
 - https://segmentfault.com/a/1190000011093597?utm_source=tag-newest
 - https://blog.csdn.net/itguangit/article/details/78825505
 
