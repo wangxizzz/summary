@@ -142,3 +142,6 @@ ps [OPTIONS] --sort -paramter1,+parameter2,parameter3..
 - -w或--raw：显示RAW传输协议的连线状况； 
 - -x或--unix：此参数的效果和指定"-A unix"参数相同； 
 - --ip或--inet：此参数的效果和指定"-A inet"参数相同。
+
+6.**Linux解压文件到指定目录**
+- tar -zxvf test.tgz -C 指定目录
