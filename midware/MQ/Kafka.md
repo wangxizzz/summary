@@ -52,6 +52,18 @@ HDD传统机械硬盘。SSD固态硬盘。
 
 6.**kafka的原理：**
 - broker 会在它所监听的每一个端口上运行一个 Accepto 「线程，这个钱程会创建一个连接，并把它交给 processor线程去处理。 Processor线程（也被叫作“网络线程”）的数量是可配置的。网络线程负责从客户端获取请求悄息，把它们放进请求队列，然后从晌应队列获取响应消息，把它们发送给客户端。请求消息被放到请求队列后，IO线程会负责处理它们。
+- KafkaProducer 是线程安全的，可以在多个线程中共享单个KafkaProducer 实例，也可以将
+KafkaProducer 实例进行池化来供其他线程调用。
+- **可重试异常与不可重试异常：**
+    - KafkaProducer 中一般会发生两种类型的异常： 可重试的异常和不可重试的异常。常见的可
+重试异常有： NetworkException 、LeaderNotAvailableException 、UnknownTopicOrPartitionException 、
+NotEnoughReplicasException 、NotCoordinatorException 等。比如NetworkException 表示网络异
+常，这个有可能是由于网络瞬时故障而导致的异常，可以通过重试解决；又比如
+LeaderNotAvailableException 表示分区的leader 副本不可用，这个异常通常发生在leader 副本下
+线而新的leader 副本选举完成之前，重试之后可以重新恢复。不可重试的异常，比如1.4 节中
+提及的RecordTooLargeException 异常，暗示了所发送的消息太大， KafkaProducer 对此不会进行
+任何重试，直接抛出异常。
+- 
 
 7.**kafka server.properties介绍**
 ```shell
