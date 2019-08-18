@@ -21,11 +21,11 @@
 - 在kafka命令行创建topic: 
     - ./kafka-topics.sh --create --topic java_topic --zookeeper localhost:2181 --partitions 1 --replication-factor 1(副本为一，表示集群只保存一份数据)
 - 命令行创建producer客户端:
-     -./kafka-console-producer.sh --topic test --broker-list 192.168.1.102:9092
+     -./kafka-console-producer.sh --topic java_topic --broker-list 192.168.1.102:9092
 - 命令行创建consumer客户端：
-    - ./kafka-console-consumer.sh --topic test --bootstrap-serve 192.168.1.102:9092
+    - ./kafka-console-consumer.sh --topic java_topic --bootstrap-server 192.168.1.102:9092
 - 命令行创建consumer客户端： 
-     -./kafka-console-consumer.sh --topic test --bootstrap-serve 192.168.1.102:9092 --from-beginning 加上--from-beginning可以从头开始pull生产者端的消息。
+     -./kafka-console-consumer.sh --topic java_topic --bootstrap-server 192.168.1.102:9092 --from-beginning 加上--from-beginning可以从头开始pull生产者端的消息。
 
 **在虚拟机启动kafka的问题解决：**
 - ```注意：```把配置文件中的所有localhost或者默认主机名都换成虚拟机的ip地址，这样可以减少很多windows与虚拟机通信的问题。
@@ -39,7 +39,9 @@ HDD传统机械硬盘。SSD固态硬盘。
 3.**kafka的配置介绍：**
 - log.dirs: 
     - Kafka 把所有消息都保存在磁盘上，存放这些日志片段的目录是通过 log.dirs指定的.
-
+- zk的chroot: 
+    - chroot是一个zk的namespace
+- 
 
 4.**分析kafka源码知道**：
 - 在```ProducerConfig```里面有很多producer端想要的配置信息，比如partitioner,interceptor
