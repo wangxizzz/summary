@@ -20,7 +20,7 @@ Changes to be committed: 表示需要commit
 
 **如果需要clone远程aa分支到本地：**
 - git checkout -b aa
-- git push origin aa
+- git pull origin aa
 - 即可
 
 **git commit -a -m "test"**

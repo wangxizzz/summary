@@ -11,7 +11,7 @@
 务就是从首领那里复制消息，保持与首领一致的状态。如果首领发生崩渍，其中的一个
 跟随者会被提升为新首领。
 
-2.**kafka启动：**
+2.**kafka启动,版本为2.1.0，zk版本3.1.14：**
 - 先启动自带zk：
     - ./zookeeper-server-start.sh -daemon ../config/zookeeper.properties
 - 再启动kafka: 
@@ -63,7 +63,9 @@ LeaderNotAvailableException 表示分区的leader 副本不可用，这个异常
 线而新的leader 副本选举完成之前，重试之后可以重新恢复。不可重试的异常，比如1.4 节中
 提及的RecordTooLargeException 异常，暗示了所发送的消息太大， KafkaProducer 对此不会进行
 任何重试，直接抛出异常。
-- 
+- **kafka的偏移量：**
+    - 为了防止broker重启，因此consumer提交的偏移量不能保存在内存中，需要持久化到磁盘.偏移量存储在kafka内部主题的_consumer_offset中。
+    - 消费者需要提交的offset值为这次消费的最大offset + 1.
 
 7.**kafka server.properties介绍**
 ```shell
