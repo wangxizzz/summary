@@ -10,6 +10,14 @@
     - 首领以外的副本都是跟随者副本。跟随者副本不处理来自客户端的请求，它们唯一的任
 务就是从首领那里复制消息，保持与首领一致的状态。如果首领发生崩渍，其中的一个
 跟随者会被提升为新首领。
+- 分区中 的所有副本统称为 AR ( Assigned Replicas ） 。 所有与 leader 副本保持一定程度同步
+的副本（包括 leader 副本在内〕组成 ISR On-Sync Replicas ) , ISR 集合是 AR 集合中 的一个子
+集 。 消息会先发送到 leader 副本，然后 follower 副本才能从 leader 副本中拉取消息进行同步，
+同步期间内 follower 副本相对于 leader 副本而言会有一定程度的滞后 。 前面所说的“一定程度
+的同步”是指可忍受的滞后范围，这个范围可以通过参数进行配置 。 与 leader 副本同步滞后过
+多的副本（不包括 leader 副本）组成 OSR ( Out-of-Sync Replicas ），由此可见， AR=ISR+OSR 。
+在正常情况下， 所有的 follower 副本都应该与 leader 副本保持一定程度 的同步，即 AR=ISR,
+OSR 集合为空。
 
 2.**kafka启动,版本为2.1.0，zk版本3.1.14：**
 - 先启动自带zk：
@@ -26,6 +34,16 @@
     - ./kafka-console-consumer.sh --topic java_topic --bootstrap-server 192.168.1.102:9092
 - 命令行创建consumer客户端： 
      -./kafka-console-consumer.sh --topic java_topic --bootstrap-server 192.168.1.102:9092 --from-beginning 加上--from-beginning可以从头开始pull生产者端的消息。
+- 查看有哪些topic:
+    - ./kafka-topics.sh --zookeeper localhost:2181 -list
+- 查看topic的描述信息：
+    - ./kafka-topics.sh --zookeeper localhost:2181 --describe --topic java_topic
+- 删除主题：
+    - 必须先开启配置：delete.topic.enable=true
+    - ./kafka-topics.sh --zookeeper localhost:2181 --delete --topic java_topic
+- 
+
+
 
 **在虚拟机启动kafka的问题解决：**
 - ```注意：```把配置文件中的所有localhost或者默认主机名都换成虚拟机的ip地址，这样可以减少很多windows与虚拟机通信的问题。
@@ -36,12 +54,18 @@
 
 HDD传统机械硬盘。SSD固态硬盘。
 
-3.**kafka的配置介绍：**
+3.**kafka常见配置介绍：**
 - log.dirs: 
     - Kafka 把所有消息都保存在磁盘上，存放这些日志片段的目录是通过 log.dirs指定的.
 - zk的chroot: 
     - chroot是一个zk的namespace
-- 
+- **生产端配置：**
+    - buffer.memory:
+        - RecordAccumulator的缓存大小，producer端批量发送的缓冲区
+    - acks:
+        - 这个参数用来指定分区中必须要有多少个副本收到这条消息，之后生产者才会认为这条消
+息是成功写入的。
+    - 
 
 4.**分析kafka源码知道**：
 - 在```ProducerConfig```里面有很多producer端想要的配置信息，比如partitioner,interceptor
@@ -56,10 +80,7 @@ HDD传统机械硬盘。SSD固态硬盘。
 KafkaProducer 实例进行池化来供其他线程调用。
 - **可重试异常与不可重试异常：**
     - KafkaProducer 中一般会发生两种类型的异常： 可重试的异常和不可重试的异常。常见的可
-重试异常有： NetworkException 、LeaderNotAvailableException 、UnknownTopicOrPartitionException 、
-NotEnoughReplicasException 、NotCoordinatorException 等。比如NetworkException 表示网络异
-常，这个有可能是由于网络瞬时故障而导致的异常，可以通过重试解决；又比如
-LeaderNotAvailableException 表示分区的leader 副本不可用，这个异常通常发生在leader 副本下
+重试异常有： NetworkException 、LeaderNotAvailableException 、UnknownTopicOrPartitionException 、NotEnoughReplicasException 、NotCoordinatorException 等。比如NetworkException 表示网络异常，这个有可能是由于网络瞬时故障而导致的异常，可以通过重试解决；又比如LeaderNotAvailableException 表示分区的leader 副本不可用，这个异常通常发生在leader 副本下
 线而新的leader 副本选举完成之前，重试之后可以重新恢复。不可重试的异常，比如1.4 节中
 提及的RecordTooLargeException 异常，暗示了所发送的消息太大， KafkaProducer 对此不会进行
 任何重试，直接抛出异常。
