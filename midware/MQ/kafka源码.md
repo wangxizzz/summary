@@ -101,4 +101,50 @@ public class Node {
 
 ```
 
-2.
+2.**kafkaConsumer如何防止多线程访问：**
+
+代码这样设计看出，kafkaConsumer多线程访问不安全。
+摘录自KafkaConsumer.java
+```java
+// 常量，表示线程number
+private static final long NO_CURRENT_THREAD = -1L;
+// currentThread保存当前访问KafkaConsumer线程的id，currentThread作用是阻止multi-threaded access
+private final AtomicLong currentThread = new AtomicLong(NO_CURRENT_THREAD);
+// refcount作用是同一个线程访问KafkaConsumer的可重入锁的作用
+private final AtomicInteger refcount = new AtomicInteger(0);
+//  轻量级加锁操作，而不是阻塞，多线程访问抛出ConcurrentModificationException
+private void acquire() {
+    long threadId = Thread.currentThread().getId();
+    // 第一个线程A执行时，假设线程id为100，条件1返回true，条件2compareAndSet返回true，NO_CURRENT_THREAD的实际值与预期值相同，为-1, 此时currentThread值为100.
+    // 第二个线程B（假设线程id为200）访问相同的KafkaConsumer时，
+    // 此时currentThread值为100，条件1返回true，条件2的compareAndSet返回false，因此抛异常
+    // A线程又来访问时，条件1返回false,refCount++,可重入。
+    if (threadId != currentThread.get() && !currentThread.compareAndSet(NO_CURRENT_THREAD, threadId))
+        throw new ConcurrentModificationException("KafkaConsumer is not safe for multi-threaded access");
+    refcount.incrementAndGet();
+}
+
+    // JDK的compareAndSet
+    /*
+     * 如果内存实际值==预期值，那么原子更新实际值为updated value
+     * @param expect the expected value
+     * @param update the new value
+     * @return {@code true} if successful. False return indicates that
+     * the actual value was not equal to the expected value.
+     * CAS有三个值，内存实际值，预期值，更新值。
+     */
+    public final boolean compareAndSet(long expect, long update) {
+        return unsafe.compareAndSwapLong(this, valueOffset, expect, update);
+    }
+
+    /**
+     * Release the light lock protecting the consumer from multi-threaded access.
+     */
+     // 解锁操作
+    private void release() {
+        if (refcount.decrementAndGet() == 0)
+            currentThread.set(NO_CURRENT_THREAD);
+    }
+```
+
+3.

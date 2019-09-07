@@ -66,10 +66,19 @@ HDD传统机械硬盘。SSD固态硬盘。
         - 这个参数用来指定分区中必须要有多少个副本收到这条消息，之后生产者才会认为这条消
 息是成功写入的。
     - 
+- **消费端配置：**
+    - enable.auto.commit:
+        - 自动提交偏移量，默认为true. 这个逻辑是在poll()方法完成
+    - auto.offset.reset:
+        - 在 Kafka 中 每当消费者查找不到所记录的消费位移 时， 默认是latest,表示最近提交的偏移量的下一个开始。还有值为earliest,表示从该分区0开始消费。
+        - 在位移越界也会触发参数运行
+        - 如果配置为none，那么在发生上述两种情况就会抛出ConfigException
+    - 
 
 4.**分析kafka源码知道**：
 - 在```ProducerConfig```里面有很多producer端想要的配置信息，比如partitioner,interceptor
 - 在```ConsumerConfig```里面有很多consumer端想要的配置信息
+- 使用seek()可以指定位移消费。
 
 5.**Java的logback日志配置：**
 - https://www.cnblogs.com/sky230/p/6420208.html
@@ -99,3 +108,11 @@ log.dirs=/tmp/kafka-logs
 # Kafka 所需的ZooKeeper 集群地址，为了方便演示，我们假设Kafka 和ZooKeeper 都安装在本机
 zookeeper.connect=localhost:2181/kafka
 ```
+
+8.**重要的原理与概念:**
+- 对于偏移量这种非常重要的东西，kafka的处理是持久化，而不是放到内存中，否则的机器一重启就没了。
+- 消费者位移保存在内部主题_consumer_offsets中。客户端提交的位移值，是下一次消费的值。假如这一次消费的X，那么偏移量的提交为X+1.
+- 在再均衡期间，消费者是不会读取消息的，也就是说对外不可用。
+- KatkaProducer 是线程安全 的，然而 KafkaConsumer 却是非线程安全 的 。 KafkaConsumer 中
+定义了 一个 acquire（）方法，用来检测当前是否只有一个线程在操作，若有其他线程正在操作则
+会抛出 ConcurrentModifcationException 异常。
