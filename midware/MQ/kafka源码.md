@@ -103,7 +103,7 @@ public class Node {
 
 2.**kafkaConsumer如何防止多线程访问：**
 
-代码这样设计看出，kafkaConsumer多线程访问不安全。
+代码这样设计看出，kafkaConsumer多线程访问不安全，因此需要在很多地方保证多线程访问的正确性。
 摘录自KafkaConsumer.java
 ```java
 // 常量，表示线程number
