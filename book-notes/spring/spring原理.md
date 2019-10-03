@@ -14,6 +14,8 @@
 
 
 **spring如何解决bean的循环依赖问题？**
+- 通过xml中构造器循环依赖是无法解决的, 只能抛出BeanCurrentlyInCreationException。
+- 通过xml中配置的setter注入方式。对于Setter注入造成的依赖是通过 Spring 容器 提前暴露刚完成构造器注入但未完成其他步骤(如 setter注入)的 bean来完成的，而且只能解决```单例```作用域的 bean 循环依赖，对于“ prototype”作用域 bean, Spring 容器无法完成依赖 注入，因为 Spring 容器不进行缓 存“prototype”作用域的 bean，因此无法提前暴露一个创建中的 bean。
 
 **Spring的总体架构**：  
 - 
