@@ -130,6 +130,7 @@
 13、chown change owner 改变所属用户
     chgrp  change group 改变所属用户组
     chmod change mode 改变权限
+    chmod -R 777 ./  递归修改当前目录下的所有文件的权限。
 
 14、文本操作：
     cat 
