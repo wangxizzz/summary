@@ -317,12 +317,21 @@ git pull origin 分支名
 - 参考网址： https://blog.csdn.net/zzq900503/article/details/71173234
 
 
-**git如果在merge时，不小心merge漏了几行代码，然后就点击了ok。后来发现想重新pull,把那几行代码拉下来，但是现实pull no items??** （亲测有效）
+**git如果在merge master时，不小心merge漏了几行代码，然后就点击了ok。后来发现想重新pull,把那几行代码拉下来，但是现实pull no items??** （亲测有效）
 - 为什么会pull no items呢？
     - 因为已经merge过了，那么这两个分支会在同一个点上，你再怎么拉，仍然拉不下来（即使文件不一样）。
 - 解决办法:
     - 回退到merge之前的版本，然后重新pull，重新merge,这回需要看仔细了！！
         - 回退命令： git reste --hard commitId  (commitId最好从idea的可视化界面看Version Control-> log, 也可以git log查看)
+- 如果上述方式不行，那么先在自己分支reset到merge之前的代码，然后checkout到master的分支，执行git pull,把master拉倒最新，然后在切回自己的分支，执行git merge master即可，把master最新代码与本地分支合并。
+
+**git master代码回滚，本地分支merge master导致代码丢失解决办法：**  
+使用git 的 revert 命令可以将丢失的代码找回，操作步骤如下：  
+1、本地分支merge master代码（执行完成后，本地代码丢失）  
+2、git commit -am "merge master" (提交这次merge结果)  
+3、git revert [commit] （这里的commit为master回滚代码产生的commit 比如fa042ce57ebbe5bb9c8db709f719cec2c58ee7ff）
+    gitLab上查找回滚的记录可找到该id。  其实本质就是把master的回滚操作在自己的分支revert掉了，因为本地分支已经merge过master了  
+4、git push
 
 **Git设置当前分支为默认push分支**
 - git config --global push.default "current"
