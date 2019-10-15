@@ -27,3 +27,4 @@ protected void checkNameUniqueness(String beanName, List<String> aliases, Elemen
 private final Set<String> usedNames = new HashSet<>();
 ```
 
+**spring如何解决bean的循环依赖问题？源码分析：**
