@@ -148,6 +148,11 @@
         ctrl+u 上翻半页
         ctrl+d 下翻半页
         q 退出来
+    more : 
+        空格键：向下翻一页
+        Enter：默认往下一行
+        Ctrl+B  返回上一屏
+    可以使用 less catalina.out|more
         
 15、crontab详解:可以定时执行一些脚本文件。
     https://www.cnblogs.com/aminxu/p/5993769.html
