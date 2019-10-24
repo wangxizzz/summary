@@ -51,6 +51,9 @@
             -e : 可以使用多个正则匹配
         less catalina.out | grep -i -e "调用前端推送失败订单id接口" --color  搜索日志
 
+        注意：grep 精确匹配时，使用引号包住想要查询的内容，但是如果是正则查询(比如*aa*)，这种就不能
+        使用引号包起来，如果使用引号，那么就会精确匹配*aa*，就不是自己想要的结果了。
+
         grep (global search regular expression(RE) and print out the line,
         全面搜索正则表达式并把行打印出来)是一种强大的文本搜索工具，它能使用正则表达式搜索文本，并把匹配的行打印出来。
         
