@@ -123,6 +123,7 @@
     find参考网址：主要用于文件查找(不能使用ls)。http://man.linuxde.net/find
     xargs：主要用于命令聚合与行聚合或者分散。  http://man.linuxde.net/xargs
     find . -name "*.xml" 查看当前目录下的所有xml文件。
+    find ./ -name "*算法*"  查询文件名包含算法2字的。
     find /home -mtime -3 -type f 表示找到home目录下三天之前修改的文件。-mtime表示文件最后的访问时间
     find /home -mtime -3 -type f | xargs -0 rm -rf 表示找到home目录下三天之前修改的文件然后删掉
     find ./ -type f -print0 | xargs -0 wc -l | sort -nk1 查找并输出当前目录下的文件的行数，并排序。
