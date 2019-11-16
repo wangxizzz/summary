@@ -64,4 +64,4 @@ http://www.runoob.com/redis/redis-keys.html 这个上面介绍的命令链接可
 - allkeys-lfu：在所有的key中使用LFU算法淘汰数据
 
 6.**redisson的简单使用**
-- https://juejin.im/post/5d9699ace51d45781d5e4baa
+- https://github.com/redisson/redisson/wiki/%E7%9B%AE%E5%BD%95
