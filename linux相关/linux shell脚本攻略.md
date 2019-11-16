@@ -128,3 +128,4 @@ ps [OPTIONS] --sort -paramter1,+parameter2,parameter3..
 
 9.zsh:
 - mac安装zsh使终端语法高亮：https://www.cnblogs.com/EasonJim/p/6283247.html
+- ps aux|grep "redis"  mac的ps 不带 - 参数
