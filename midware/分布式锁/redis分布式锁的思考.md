@@ -42,4 +42,5 @@ end
 - https://juejin.im/post/58b3a93c1b69e60058b49767
 - 这篇文章记录了redis lock的所有缺点与问题
 - 给出了不同场景解决方案的选取。
+- 给出了zk与redis实现锁的各自的区别
 - 由国外论文翻译而来
