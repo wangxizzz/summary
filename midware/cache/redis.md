@@ -59,3 +59,6 @@ http://www.runoob.com/redis/redis-keys.html 这个上面介绍的命令链接可
 - volatile-lfu：在设置了过期时间的key中使用LFU算法淘汰key
     - LFU : LFU算法是Redis4.0里面新加的一种淘汰策略。它的全称是Least Frequently Used，它的核心思想是根据key的最近被访问的频率进行淘汰，很少被访问的优先被淘汰，被访问的多的则被留下来。LFU算法能更好的表示一个key被访问的热度。假如你使用的是LRU算法，一个key很久没有被访问到，只刚刚是偶尔被访问了一次，那么它就被认为是热点数据，不会被淘汰，而有些key将来是很有可能被访问到的则被淘汰了。如果使用LFU算法则不会出现这种情况，因为使用一次并不会使一个key成为热点数据。
 - allkeys-lfu：在所有的key中使用LFU算法淘汰数据
+
+6.**redisson的简单使用**
+- https://juejin.im/post/5d9699ace51d45781d5e4baa
