@@ -48,6 +48,7 @@ http://www.runoob.com/redis/redis-keys.html 这个上面介绍的命令链接可
 - info ： 可以查看集群的信息
 - config get * : 可以查看redis的配置信息(在命令行查看和设置)，比如config get "maxmemory"
 - type + key : 查看数据库键对应值的类型
+- object encoding + key:可以查看key对象的底层数据结构类型
 - 
 
 5.**redis的回收策略：**
@@ -65,3 +66,6 @@ http://www.runoob.com/redis/redis-keys.html 这个上面介绍的命令链接可
 
 6.**redisson的简单使用**
 - https://github.com/redisson/redisson/wiki/%E7%9B%AE%E5%BD%95
+
+7.**redis数据类型底层结构**
+<img src="../../imgs/redis底层数据结构.png"/>
