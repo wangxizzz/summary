@@ -52,24 +52,6 @@ select goods_id,goods_name from goods where goods_id = (select max(goods_id) fro
 优化方式：
 可以使用连接查询（JOIN）代替子查询，连接查询不需要建立临时表，因此其速度比子查询快。
 
-3.**Guava中不可变的Map:**
-
-ImmutableMap
-```java
-
-// 实现方式 也是在调用改变Map值的方法里直接抛出异常。
-public final V put(K k, V v) {
-    throw new UnsupportedOperationException();
-}
-public final V putIfAbsent(K key, V value) {
-    throw new UnsupportedOperationException();
-}
-
-public final boolean replace(K key, V oldValue, V newValue) {
-    throw new UnsupportedOperationException();
-}
-```
-
 4.Bloom Filter：  
 详解布隆过滤器的原理，使用场景和注意事项(误判详解)：https://zhuanlan.zhihu.com/p/43263751
 
@@ -113,51 +95,6 @@ public class PreFeeRequestModel extends RequestModel{
 ```上述错误原因解释：```
 Java中只要调用子类的构造函数就一定会调用父类的构造函数，这是毋庸置疑的！有时我们并没有在父类中写有参和无参的构造方法，但是这样我们在定义子类对象时调用子类构造函数时，其实也调用父类的构造函数，这是系统自动为我们添加的“public Pen(){}”。但是如果我们在父类中已经自己定义了有参的构造方法，却没有定义无参的构造方法，那么此时系统是不会为我们自动添加无参的构造方法的，此时程序结果就会提醒你父类没有无参的构造方法，程序就会报错。
 
-8.**Spring中的BeanUtils：**  
-BeanUtils.copyProperties 是一个深拷贝方法，复制属性时，我们只需要把 DTO 对象和要转化的对象两个的属性值设置为一样的名称，并且保证一样的类型就可以了。  
-```如果两个类的属性不一样(属性个数，属性类型)，那么copy后的结果就是属性值为null.```
-
-**9.Hibernate validation:**
-
-更多详细介绍Hibernate validation参考：
-https://www.cnblogs.com/mr-yang-localhost/p/7812038.html  全面的介绍Hibernate validation(里面的对@RequestPara参数的校验是正确的，需要创建一个bean, 并且不能使用bindingResult),具体的实现可参照工程design-pattern的refactoring工程的demo01.
- 
-https://blog.csdn.net/Gred01/article/details/78533390 介绍常用的用法
-
-注意：
-- @NotEmpty 用在集合类上面
-- @NotBlank 用在String上面
-- @NotNull 用在基本类型上
-- @Valid被注释的元素是一个对象，需要检查此对象的所有字段值
-- @Min(value)被注释的元素必须是一个数字，其值必须大于等于指定的最小值
-- @Max(value)被注释的元素必须是一个数字，其值必须小于等于指定的最大值
-- @Size(max, min)被注释的元素的大小必须在指定的范围内
-- @Future被注释的元素必须是一个将来的日期
-- @Pattern(value)被注释的元素必须符合指定的正则表达式
-- @Email被注释的元素必须是电子邮箱地址
-- @Length(min=, max=)被注释的字符串的大小必须在指定的范围内
-- @Range(min=, max=)被注释的元素必须在合适的范围内
-如果上述类型与注解使用错误，会抛异常。
-https://www.jianshu.com/p/e70cb8ba8f48 列出了各个注解的用法
-
-10.**Preconditions参数校验机制：让前置条件判断变得更优雅**    
-https://blog.csdn.net/zivensonice/article/details/51912188
-
-11.**joda time 使用参考**：
-- code refactoring工程的demo02
-- https://blog.csdn.net/qq_36838191/article/details/81296987 介绍了DateTime(相当于Calendar)的操作
-- joda time 对日期的格式化    https://www.jianshu.com/p/cb4521194707
-
-### 12.约定优于配置  
-Springboot.
-```java
-// 在Guava中
-List<String> list = Lists.newArrayList();
-```
-
-13.**Guava中的集合框架API使用:**  
-
-https://www.cnblogs.com/snidget/archive/2013/02/05/2893344.html
 
 14.**transient关键字：**  
 https://www.cnblogs.com/lanxuezaipiao/p/3369962.html#top  
