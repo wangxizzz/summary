@@ -49,6 +49,11 @@ http://www.runoob.com/redis/redis-keys.html 这个上面介绍的命令链接可
 - config get * : 可以查看redis的配置信息(在命令行查看和设置)，比如config get "maxmemory"
 - type + key : 查看数据库键对应值的类型
 - object encoding + key:可以查看key对象的底层数据结构类型
+- flushdb:清空当前db的的所有key-value
+- select 0 : 可以选择db
+- expire 设置key过期时间 单位为s
+- ttl + key: 可以查看key还剩多长时间过期
+- persist + key:可以删掉key的过期时间，变为永久不过期
 - 
 
 5.**redis的回收策略：**
@@ -67,5 +72,7 @@ http://www.runoob.com/redis/redis-keys.html 这个上面介绍的命令链接可
 6.**redisson的简单使用**
 - https://github.com/redisson/redisson/wiki/%E7%9B%AE%E5%BD%95
 
-7.**redis数据类型底层结构**
+7.**redis本身是一个key-value数据库，那么key为string对象，value可以为string对象、list、hash、set、zset这五种对象,所以，redis本身就是大的hashtable**
+
+**redis数据类型底层结构**
 <img src="../../imgs/redis底层数据结构.png"/>
