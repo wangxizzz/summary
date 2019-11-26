@@ -48,8 +48,10 @@
     如何查看所有异常和异常栈；
         grep参数解释：https://blog.csdn.net/u011003120/article/details/52185356
             -i : 忽略大小写(针对单个字符)
-            -e : 可以使用多个正则匹配
-        less catalina.out | grep -i -e "调用前端推送失败订单id接口" --color  搜索日志
+            -E : 可以使用多个正则匹配(注意，是大写的E)
+        less wrapper.sync_hotel_cluster.log|grep -E "supplierId=100000|多环境酒店seq聚合失败"
+        或者使用多个管道：
+        less wrapper.sync_hotel_cluster.log|grep "多环境酒店seq聚合失败"| grep "100000"   最后一节标红
 
         注意：grep 精确匹配时，使用引号包住想要查询的内容，但是如果是正则查询(比如*aa*)，这种就不能
         使用引号包起来，如果使用引号，那么就会精确匹配*aa*，就不是自己想要的结果了。
