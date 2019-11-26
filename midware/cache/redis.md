@@ -3,6 +3,8 @@
 参考网址：  
 http://www.runoob.com/redis/redis-keys.html 这个上面介绍的命令链接可以点击获取详细操作演示。
 
+- 官方中文文档：http://redisdoc.com/hash/index.html
+
 1.**常用命令：**
 - **string**:
     - set name wangxi  
@@ -73,6 +75,34 @@ http://www.runoob.com/redis/redis-keys.html 这个上面介绍的命令链接可
 - https://github.com/redisson/redisson/wiki/%E7%9B%AE%E5%BD%95
 
 7.**redis本身是一个key-value数据库，那么key为string对象，value可以为string对象、list、hash、set、zset这五种对象,所以，redis本身就是大的hashtable**
+
+8.**redis持久化操作**
+- RDB持久化：保存db的key-value键值对
+    - save会阻塞服务器进程，直到rdb文件创建完毕为止,载入rdb文件也是如此。
+    - bgsave:会fork一个子进程去生成rdb文件。
+    - save 900 1  : 表示在900s内对数据库修改了一次,bgsave命令就会执行。 
+- AOF: 通过保存redis服务器所执行的命令来记录数据库的状态。
+    - 如果系统开启了AOF，那么redis启动时，先加载AOF文件，因为AOF更新频率通常比RDB高。
+    - 每一次事件循环结束，都会调用flushAppendOnlyFile()方法，把aof缓冲区的内容写入和保存到AOF文件中。过程利用如下伪代码表示：
+    ```
+    def eventLoop:
+        while True : 
+            // 处理文件事件
+            // 处理文件事件中，可能会有新的命令会写入到AOF缓冲区中
+            processFileEvent()
+            // 处理时间事件
+            processTimeEvent()
+            // 考虑是否把aof缓冲区数据写入文件
+            flushAppendOnlyFile()
+    ```
+    - AOF持久化的频率配置： 利用选项值appendfsync。everysec表示每秒同步一次缓冲区数据到文件，no表示由操作系统决定同步的时机。```默认是everysec```
+
+9.**关于redis主从复制**
+- 
+
+10.**redis的事件循环(Loop)**
+- redis服务器进程就是一个事件循环，这个循环中文件事件负责接受客户端的命令请求，以及想客户端发送命令回复，循环中的时间事件负责执行定时的任务。
+- 
 
 **redis数据类型底层结构**
 <img src="../../imgs/redis底层数据结构.png"/>
