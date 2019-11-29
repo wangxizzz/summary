@@ -171,6 +171,11 @@ $ git config --global alias.st status
 
 git config --global alias.last 'log -1 HEAD'  // 相当于git log -1
 
+## git diff
+- git diff --name-only  origin/master -G @Bean : 找出和master分支diff的代码中有@Bean字符串。
+    - --name-only 表示只列出diff的文件名
+    - -G @Bean 表示和master分支diff中有不同的地方有 @Bean 字符串
+
 
 ## 分支
 **git pull origin master**
