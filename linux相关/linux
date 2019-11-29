@@ -59,8 +59,9 @@
         注意：grep 精确匹配时，使用引号包住想要查询的内容，但是如果是正则查询(比如*aa*)，这种就不能
         使用引号包起来，如果使用引号，那么就会精确匹配*aa*，就不是自己想要的结果了。
 
-        grep (global search regular expression(RE) and print out the line,
-        全面搜索正则表达式并把行打印出来)是一种强大的文本搜索工具，它能使用正则表达式搜索文本，并把匹配的行打印出来。
+        grep出来的数据输出到文件：
+           grep 'search-string' server.log >> ~/log/test.log (如果是> 表示覆盖内容，>> 表示追加)
+        同样的原理，tail、head等命令输出的内容也可以使用这样的方式输出到文件中
         
         grep -A 10 “java.lang.IllegalArgumentException”
             grep -A 数字 ：找到所有的匹配行，并显示匹配行后N行
