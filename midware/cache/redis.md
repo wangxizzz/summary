@@ -80,7 +80,7 @@ http://www.runoob.com/redis/redis-keys.html 这个上面介绍的命令链接可
 - RDB持久化：保存db的key-value键值对
     - save会阻塞服务器进程，直到rdb文件创建完毕为止,载入rdb文件也是如此。
     - bgsave:会fork一个子进程去生成rdb文件。
-    - save 900 1  : 表示在900s内对数据库修改了一次,bgsave命令就会执行。 
+    - save 900 1  : 表示在900s内对数据库修改了一次,```bgsave```命令就会执行。 
 - AOF: 通过保存redis服务器所执行的命令来记录数据库的状态。
     - 如果系统开启了AOF，那么redis启动时，先加载AOF文件，因为AOF更新频率通常比RDB高。
     - 每一次事件循环结束，都会调用flushAppendOnlyFile()方法，把aof缓冲区的内容写入和保存到AOF文件中。过程利用如下伪代码表示：
@@ -95,14 +95,20 @@ http://www.runoob.com/redis/redis-keys.html 这个上面介绍的命令链接可
             // 考虑是否把aof缓冲区数据写入文件
             flushAppendOnlyFile()
     ```
-    - AOF持久化的频率配置： 利用选项值appendfsync。everysec表示每秒同步一次缓冲区数据到文件，no表示由操作系统决定同步的时机。```默认是everysec```
+    - **AOF持久化的频率配置介绍**： 
+        - always：Redis 在每个事件循环都要将 AOF 缓冲区中的所有内容写入到 AOF 文件，并且同步 AOF 文件，所以 always 的效率是 appendfsync 选项三个值当中最差的一个，但从安全性来说，也是最安全的。当发生故障停机时，AOF 持久化也只会丢失一个事件循环中所产生的命令数据。
+        - everysec：Redis 在每个事件循环都要将 AOF 缓冲区中的所有内容写入到 AOF 文件中，并且每隔一秒就要在子线程中对 AOF 文件进行一次同步。从效率上看，该模式足够快。当发生故障停机时，只会丢失一秒钟的命令数据。
+        - no：Redis 在每一个事件循环都要将 AOF 缓冲区中的所有内容写入到 AOF 文件。而 AOF 文件的同步由操作系统控制。这种模式下速度最快，但是同步的时间间隔较长，出现故障时可能会丢失较多数据。
 
 9.**关于redis主从复制**
 - 
 
-10.**redis的事件循环(Loop)**
+**redis的事件循环(Loop)**
 - redis服务器进程就是一个事件循环，这个循环中文件事件负责接受客户端的命令请求，以及想客户端发送命令回复，循环中的时间事件负责执行定时的任务。
-- 
+- redis服务端基于Reactor模型。IO多路复用程序负责监听多个套接字，并向文件事件分发器传送哪些已产生事件的套接字。事件类型可以参照NIO.
+- redis的I/O多路复用效果图：
 
-**redis数据类型底层结构**
-<img src="../../imgs/redis底层数据结构.png"/>
+<img src="../../imgs/redis多路复用.png" height=300px/>
+
+**redis数据类型底层结构**  
+<img src="../../imgs/redis底层数据结构.png" height=300px width=700px/>
