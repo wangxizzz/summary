@@ -387,4 +387,6 @@ public void channelActive(ChannelHandlerContext ctx) {
 - 参考网址:
     - https://www.jianshu.com/p/36d20de2a1ee 
 
-****
+**netty的堆外内存泄露问题：**
+- https://tech.meituan.com/2018/10/18/netty-direct-memory-screening.html
+- https://www.javatt.com/p/44795
