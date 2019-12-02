@@ -101,7 +101,7 @@ http://www.runoob.com/redis/redis-keys.html 这个上面介绍的命令链接可
         - no：Redis 在每一个事件循环都要将 AOF 缓冲区中的所有内容写入到 AOF 文件。而 AOF 文件的同步由操作系统控制。这种模式下速度最快，但是同步的时间间隔较长，出现故障时可能会丢失较多数据。
 
 9.**关于redis主从复制**
-- 
+- https://www.cnblogs.com/kismetv/p/9236731.html
 
 **redis的事件循环(Loop)**
 - redis服务器进程就是一个事件循环，这个循环中文件事件负责接受客户端的命令请求，以及想客户端发送命令回复，循环中的时间事件负责执行定时的任务。
