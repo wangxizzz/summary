@@ -122,7 +122,7 @@ private int expungeStaleEntry(int staleSlot) {
 ```
 
 ## 内存泄漏分析：
-ThreadLocal操作不当会引发内存泄露，最主要的原因在于它的内部类ThreadLocalMap中的Entry的设计。```Entry继承了WeakReference<ThreadLocal<?>>，即Entry的key是弱引用，所以key'会在垃圾回收的时候被回收掉```， 而key对应的value则不会被回收， 这样会导致一种现象：key为null，value有值。
+ThreadLocal操作不当会引发内存泄露，最主要的原因在于它的内部类ThreadLocalMap中的Entry的设计。```Entry继承了WeakReference<ThreadLocal<?>>，即Entry的key是弱引用，所以key'会在垃圾回收的时候被回收掉```， 而key对应的value则不会被回收(因为value是强引用)， 这样会导致一种现象：key为null，value有值。
 key为空的话value是无效数据，久而久之，value累加就会导致内存泄漏。
 ```java
 static class ThreadLocalMap {
@@ -146,6 +146,7 @@ static class ThreadLocalMap {
 private Entry getEntry(ThreadLocal<?> key) {
     int i = key.threadLocalHashCode & (table.length - 1);
     Entry e = table[i];
+    // e.get()获取key
     if (e != null && e.get() == key)
         return e;
     else
@@ -172,10 +173,26 @@ private Entry getEntryAfterMiss(ThreadLocal<?> key, int i, Entry e) {
 }
 
 // 在调用set方法时，仍然会走到expungeStaleEntry方法
+
+// java.lang.Thread#exit
+private void exit() {
+    if (group != null) {
+        group.threadTerminated(this);
+        group = null;
+    }
+    /* Aggressively null out all reference fields: see bug 4006245 */
+    target = null;
+    /* Speed the release of some of these resources 清除成员变量*/
+    threadLocals = null;
+    inheritableThreadLocals = null;
+    inheritedAccessControlContext = null;
+    blocker = null;
+    uncaughtExceptionHandler = null;
+}
 ```
 
 ### 弱引用导致内存泄漏，那为什么key不设置为强引用
-如果key设置为强引用， 当threadLocal实例释放后， threadLocal=null，threadLocalMap.Entry强引用threadLocal， 这样会导致threadLocal不能正常被GC回收。
+如果key设置为强引用， 当threadLocal实例释放后， threadLocal=null，threadLocalMap.Entry强引用threadLocal， 这样会导致threadLocal不能正常被GC回收,而现在都是现成池复用线程，那么就会造成线程无法消亡，导致内存泄漏。
 弱引用虽然会引起内存泄漏， 但是也有set、get、remove方法操作对null key进行擦除的补救措施， 方案上略胜一筹。  
 ```强引用:强引用就是我们最常见的普通对象引用（如new 一个对象），只要还有强引用指向一个对象，就表明此对象还“活着”。在强引用面前，即使JVM内存空间不足，JVM宁愿抛出OutOfMemoryError运行时错误（OOM），让程序异常终止，也不会靠回收强引用对象来解决内存不足的问题。对于一个普通的对象，如果没有其他的引用关系，只要超过了引用的作用域或者显式地将相应（强）引用赋值为null，就意味着此对象可以被垃圾收集了。但要注意的是，并不是赋值为null后就立马被垃圾回收，具体的回收时机还是要看垃圾收集策略的```  
 ```弱引用：垃圾回收器会扫描它所管辖的内存区域的过程中，只要发现弱引用的对象，不管内存空间是否有空闲，都会立刻回收它。```
