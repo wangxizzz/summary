@@ -192,7 +192,7 @@ private void exit() {
 ```
 
 ### 弱引用导致内存泄漏，那为什么key不设置为强引用
-如果key设置为强引用， 当threadLocal实例释放后， threadLocal=null，threadLocalMap.Entry强引用threadLocal， 这样会导致threadLocal不能正常被GC回收,而现在都是现成池复用线程，那么就会造成线程无法消亡，导致内存泄漏。
+如果key设置为强引用，如果没有手工调用remove方法，threadLocalMap.Entry强引用threadLocal， 这样会导致threadLocal不能正常被GC回收,而现在都是现成池复用线程，那么就会造成线程无法消亡，导致内存泄漏。
 弱引用虽然会引起内存泄漏， 但是也有set、get、remove方法操作对null key进行擦除的补救措施， 方案上略胜一筹。  
 ```强引用:强引用就是我们最常见的普通对象引用（如new 一个对象），只要还有强引用指向一个对象，就表明此对象还“活着”。在强引用面前，即使JVM内存空间不足，JVM宁愿抛出OutOfMemoryError运行时错误（OOM），让程序异常终止，也不会靠回收强引用对象来解决内存不足的问题。对于一个普通的对象，如果没有其他的引用关系，只要超过了引用的作用域或者显式地将相应（强）引用赋值为null，就意味着此对象可以被垃圾收集了。但要注意的是，并不是赋值为null后就立马被垃圾回收，具体的回收时机还是要看垃圾收集策略的```  
 ```弱引用：垃圾回收器会扫描它所管辖的内存区域的过程中，只要发现弱引用的对象，不管内存空间是否有空闲，都会立刻回收它。```
@@ -202,3 +202,7 @@ private void exit() {
 要想实现jdbc事务， 就必须是在同一个连接对象中操作， 多个连接下事务就会不可控(需要借助分布式事务完)。那spring 如何保证数据库事务在同一个连接下执行的呢？  
 DataSourceTransactionManager 是spring的数据源事务管理器， 它会在你调用getConnection()的时候从数据库连接池中获取一个connection， 然后将其与ThreadLocal绑定， 事务完成后解除绑定。这样就保证了事务在同一连接下完成。  
 org.springframework.jdbc.datasource.DataSourceTransactionManager#doBegin
+
+## 问题：
+既然ThreadLocal的key是弱引用，那么在set方法调用完毕，立马发生GC，此时threadLocal的key为null了，然后再通过get()方法通过当前的threadLocal对象获取value时，就会返回null，此时上层应该怎么处理？  
+概括的说：threadLocal.get()会在已经set后，返回null,那么这种上层怎么处理？
