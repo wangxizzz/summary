@@ -38,6 +38,38 @@ ThreadLocal.ThreadLocalMap threadLocals = null;
 ThreadLocal.ThreadLocalMap inheritableThreadLocals = null;
 ```
 
+### get方法分析：
+```java
+private Entry getEntry(ThreadLocal<?> key) {
+    int i = key.threadLocalHashCode & (table.length - 1);
+    Entry e = table[i];
+    if (e != null && e.get() == key)
+        return e;
+    else
+    // 进入这个分支，说明hash错误，没有hash到放入Entry的槽位。也可能是e.get()==null
+        return getEntryAfterMiss(key, i, e);
+}
+// JDK注释：Version(变种) of getEntry method for use when key is not found in its direct hash slot
+private Entry getEntryAfterMiss(ThreadLocal<?> key, int i, Entry e) {
+    Entry[] tab = table;
+    int len = tab.length;
+
+    while (e != null) {
+        ThreadLocal<?> k = e.get();
+        if (k == key)
+            return e;
+        if (k == null)
+            expungeStaleEntry(i);
+        else
+            // 利用线性探测找元素
+            i = nextIndex(i, len);
+        e = tab[i];
+    }
+    return null;
+}
+```
+
+### set方法：
 ```java
 // set方法 java.lang.ThreadLocal#set
 public void set(T value) {
@@ -65,6 +97,7 @@ void createMap(Thread t, T firstValue) {
 }
 ```
 
+### remove()分析：
 ```java
 // remove()  java.lang.ThreadLocal#remove
 public void remove() {
