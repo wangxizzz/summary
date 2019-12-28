@@ -132,7 +132,7 @@ private void set(ThreadLocal<?> key, Object value) {
         rehash();
 }
 ```
-HashMap 的Hash冲突方法是拉链法，即用链表来处理，而 ThreadLocalMap 处理Hash冲突采用的是线性探测法，即这个槽不行，就换下一个槽，直到插入为止。```如果ThreadLocalMap发生大量的hash冲突，那么每次插入或者查找都是O(n)，但是FastThreadLocal采用的是数组存储，利用单调递增的索引获取数组中的值。```
+ThreadLocalMap 处理Hash冲突采用的是线性探测法，即这个槽不行，就换下一个槽，直到插入为止。```如果ThreadLocalMap发生大量的hash冲突，那么每次插入或者查找都是O(n)，但是FastThreadLocal采用的是数组存储，利用单调递增的索引获取数组中的值。```
 
 该方法会删除陈旧的 entry，什么是陈旧的呢，就是 ThreadLocal 为 null 的 entry，会将 entry key 为 null 的对象设置为null。核心的方法就是 expungeStaleEntry（int）；
 整体逻辑就是，通过线性探测法，找到每个槽位，如果该槽位的key为相同，就替换这个value；如果这个key 是null，则将原来的entry 设置为null，并重新创建一个entry。
