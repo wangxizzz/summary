@@ -145,7 +145,7 @@ private void registerCleaner(final InternalThreadLocalMap threadLocalMap) {
     }
     // 设置清理标志位
     threadLocalMap.setCleanerFlag(index);
-    // 注册一个清理线程
+    // 注册一个清理线程(注意：参数带上了当前线程)
     ObjectCleaner.register(current, new Runnable() {
         @Override
         public void run() {
