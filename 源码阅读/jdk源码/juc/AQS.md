@@ -30,6 +30,7 @@ static final class Node {
 
     // 下面这四个属性就是说明结点(当前线程的状态)的状态
     static final int CANCELLED =  1;
+    // SIGNAL 表示线程需要被unparking
     static final int SIGNAL    = -1;
     static final int CONDITION = -2;
     static final int PROPAGATE = -3;
@@ -44,78 +45,12 @@ static final class Node {
     Node nextWaiter;
   }
 ```
->> Node节点内部的SHARED是用来标记该线程在获取共享资源被阻塞挂起后放入AQS队列的；EXCLUSIVE用来标记该现场获取独占资源阻塞挂起后放入AQS队列的。waitStatus记录当前线程的状态，可以为CANCELLED(线程被取消了),SIGNAL(线程需要被唤醒),CONDITION(线程在条件队列中等待),PROPAGATE(释放共享资源时，需要通知其他节点)。
+>> Node节点内部的SHARED是用来标记该线程在获取共享资源被阻塞挂起后放入AQS队列的；EXCLUSIVE用来标记该现场获取独占资源阻塞挂起后放入AQS队列的。```waitStatus```记录当前线程的状态，可以为CANCELLED(线程被取消了),SIGNAL(线程需要被唤醒),CONDITION(线程在条件队列中等待),PROPAGATE(释放共享资源时，需要通知其他节点)。
 
-## 具体分析
-### 可重入锁ReentranLock 分析：
-```java
-public ReentrantLock() {
-    // 默认非公平锁
-    sync = new NonfairSync();
-}
-public void lock() {
-    sync.lock();
-}
-```
-#### 非公平锁分析：
-```java
-// 非公平锁分析：
-final void lock() {
-    // 如果锁没有被其他线程占用并且当前线程当前线程之前没有获取到该锁
-    if (compareAndSetState(0, 1))
-        // CAS成功，表示当前线程获得锁，state设置为1，设置当前锁的拥有者为当前线程。
-        setExclusiveOwnerThread(Thread.currentThread());
-    else
-        // 调用AQS acquire
-        acquire(1);
-}
-// CAS设置state的值
-protected final boolean compareAndSetState(int expect, int update) {
-    return unsafe.compareAndSwapInt(this, stateOffset, expect, update);
-}
-// 设置当前锁拥有者是当前线程
-protected final void setExclusiveOwnerThread(Thread thread) {
-    exclusiveOwnerThread = thread;
-}
-// java.util.concurrent.locks.AbstractQueuedSynchronizer#acquire
-// 独占模式下获取锁的基本方法
-public final void acquire(int arg) {
-    // 如果尝试获取锁失败tryAcquire返回false, 那么加入AQS队列
-    if (!tryAcquire(arg) &&
-        acquireQueued(addWaiter(Node.EXCLUSIVE), arg))
-        selfInterrupt();
-}
-// java.util.concurrent.locks.ReentrantLock.NonfairSync#tryAcquire
-protected final boolean tryAcquire(int acquires) {
-    return nonfairTryAcquire(acquires);
-}
-final boolean nonfairTryAcquire(int acquires) {
-    final Thread current = Thread.currentThread();
-    // 获取AQS的成员变量state的值
-    int c = getState();
-    // 当前AQS的state=0
-    if (c == 0) {
-        if (compareAndSetState(0, acquires)) {
-            setExclusiveOwnerThread(current);
-            return true;
-        }
-    }
-    // 如果是当前线程正好是锁的持有者(可重入锁)
-    else if (current == getExclusiveOwnerThread()) {
-        // 获取可重入次数。(注意：int溢出的处理方式)
-        int nextc = c + acquires;
-        if (nextc < 0) // overflow
-            throw new Error("Maximum lock count exceeded");
-        setState(nextc);
-        return true;
-    }
-    // 获取锁失败 返回false
-    return false;
-}
-```
-#### AQS 独占模式下获取锁的基本方法acquire(int arg)分析：
+### AQS 独占模式下获取锁的基本方法acquire(int arg)分析：
 ```java
 public final void acquire(int arg) {
+    // 如果尝试获得锁失败
     if (!tryAcquire(arg) &&
         acquireQueued(addWaiter(Node.EXCLUSIVE), arg))
         selfInterrupt();
@@ -140,6 +75,7 @@ private Node addWaiter(Node mode) {
             return node;
         }
     }
+    // cas更新tail失败就以自旋的方式继续尝试入队列
     enq(node);
     return node;
 }
@@ -148,20 +84,41 @@ private final boolean compareAndSetTail(Node expect, Node update) {
 }
 addWaiter步骤如下：
 1.创建一个当前线程的 Node 对象（nextWaiter 属性为 null， thread 属性为 当前线程）
-2.如果当前节点node不为null，并且
-
+2.如果当前节点node不为null，并且把node节点插入到尾部，CAS更新tail节点的引用。
+3.如果步骤2失败，进入enq(node)
 ```
 
 ```java
-
+// 以自旋的方式进入AQS队列(FIFO)
+private Node enq(final Node node) {
+    for (;;) {
+        Node t = tail;
+        if (t == null) { // Must initialize
+            if (compareAndSetHead(new Node()))
+                tail = head;
+        } else {
+            node.prev = t;
+            if (compareAndSetTail(t, node)) {
+                t.next = node;
+                return t;
+            }
+        }
+    }
+}
 ```
+enq方法分析：该方法主要就是初始化头节点和末端节点，并将新的节点追加到末端节点并更新末端节点，最后返回node节点。
 
+我们回到 addWaiter 方法中，该方法主要作用就是根据当前线程创建一个 node 对象，并追加到队列的末端。
+
+addWaiter方法返回刚创建的node对象，接着调用acquireQueued方法：
 ```java
 final boolean acquireQueued(final Node node, int arg) {
     boolean failed = true;
     try {
         boolean interrupted = false;
+        // 死循环
         for (;;) {
+            // 获取前一个节点
             final Node p = node.predecessor();
             if (p == head && tryAcquire(arg)) {
                 setHead(node);
@@ -169,8 +126,10 @@ final boolean acquireQueued(final Node node, int arg) {
                 failed = false;
                 return interrupted;
             }
+            // 挂起. 如果被唤醒，那么会继续for循环
             if (shouldParkAfterFailedAcquire(p, node) &&
                 parkAndCheckInterrupt())
+                // parkAndCheckInterrupt阻塞线程，并返回线程是否被中断。
                 interrupted = true;
         }
     } finally {
@@ -179,8 +138,71 @@ final boolean acquireQueued(final Node node, int arg) {
     }
 }
 ```
+该方法步骤如下：  
+1.死循环。先获取 node 对象 prev 节点，如果该节点和 head 相等，说明是他是第二个节点，那么此时就可以尝试获取锁了。  
+1.1 如果获取锁成功，就设置当前节点为 head 节点（同时设置当前node的线程为null，prev为null），并设置他的 prev 节点的 next 节点为 null（帮助GC回收）。最后，返回等待过程中是否中断的布尔值。  
+2.如果上面的两个条件不成立，则调用  shouldParkAfterFailedAcquire 方法和 parkAndCheckInterrupt 方法。这两个方法的目的就是将当前线程挂起。然后等待被唤醒或者被中断。  
+3.如果挂起后被当前线程唤醒，则再度循环，判断是该节点的 prev 节点是否是 head，一般来讲，当你被唤醒，说明你被准许去拿锁了，也就是 head 节点完成了任务释放了锁。然后重复步骤 1。最后返回。
 
-#### 公平锁分析：
+shouldParkAfterFailedAcquire方法如下：
 ```java
-
+private static boolean shouldParkAfterFailedAcquire(Node pred, Node node) {
+    int ws = pred.waitStatus;
+    if (ws == Node.SIGNAL) {
+        return true;
+    }
+    if (ws > 0) {
+        do {
+            // 跳过cancel的节点
+            node.prev = pred = pred.prev;
+        } while (pred.waitStatus > 0);
+        pred.next = node;
+    } else {
+        // 设置node节点的pre节点状态为有效
+        compareAndSetWaitStatus(pred, ws, Node.SIGNAL);
+    }
+    return false;
+}
 ```
+该方法步骤如下：  
+- 获取去上一个节点的等待状态，如果状态是 SIGNAL -1，就直接返回 true，表示可以挂起并休息。
+- 如果 waitStatus 大于 0， 则循环检查 prev 节点的 prev 的waitStatus，直到遇到一个状态不大于0。该字段有4个状态，分别是 CANCELLED =  1，SIGNAL    = -1， CONDITION = -2， PROPAGATE = -3，也就是说，如果大于 0，就是取消状态。那么，往上找到那个不大于0的节点后怎么办？将当前节点指向 那个节点的 next 节点，也就是说，那些大于0 状态的节点都失效这里，随时会被GC回收。
+如果不大于0 也不是 -1，则将上一个节点的状态设置为需要被唤醒状态， 也就是 -1.最后返回 false。注意，在acquireQueued 方法中，返回 false 后会继续循环，此时 pred 节点已经是 -1 了，因此最终会返回 true。
+
+```java
+private final boolean parkAndCheckInterrupt() {
+    // 挂起当前线程。线程被唤醒时，会从这里继续往下执行。
+    LockSupport.park(this);
+    // 返回当前线程是否是被中断了，注意，该方法会清除中断状态.
+    // 如果被中断了，那么返回true，并且重置中断标志位为false.
+    return Thread.interrupted();
+}
+```
+
+>> 回到 acquireQueued 方法，总结一下该方法，该方法就是将刚刚创建的线程节点挂起，然后等待唤醒，如果被唤醒了，则将自己设置为 head 节点。最后，返回是否被中断。
+
+### AQS 独占模式的release释放锁：
+```java
+private void unparkSuccessor(Node node) {
+    int ws = node.waitStatus;
+    if (ws < 0)
+        compareAndSetWaitStatus(node, ws, 0);
+    // 获取头结点的下一个节点
+    Node s = node.next;
+    // 如果头结点的下一个节点为null,或者是cacel状态(随时可能被GC)
+    if (s == null || s.waitStatus > 0) {
+        s = null;
+        // 从后往前找第一个正常节点
+        for (Node t = tail; t != null && t != node; t = t.prev) {
+            if (t.waitStatus <= 0) {
+                s = t;
+            }
+        }
+    }
+    if (s != null)
+    // 唤醒该线程
+    LockSupport.unpark(s.thread);
+}
+```
+
+>> 可重入锁基于AQS，AQS是基于state、队列来完成的。
