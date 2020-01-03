@@ -65,6 +65,50 @@ final boolean nonfairTryAcquire(int acquires) {
     return false;
 }
 ```
+
+### ReentrantLock 公平锁Lock方法分析：
+```java
+public ReentrantLock(boolean fair) {
+    sync = fair ? new FairSync() : new NonfairSync();
+}
+// 公平锁的tryAcquire
+protected final boolean tryAcquire(int acquires) {
+    final Thread current = Thread.currentThread();
+    int c = getState();
+    if (c == 0) {
+        // hasQueuedPredecessors 这里控制锁的公平获取
+        if (!hasQueuedPredecessors() &&
+            compareAndSetState(0, acquires)) {
+            // CAS 设置state成功
+            setExclusiveOwnerThread(current);
+            return true;
+        }
+    }
+    // 可重入锁
+    else if (current == getExclusiveOwnerThread()) {
+        int nextc = c + acquires;
+        if (nextc < 0)
+            throw new Error("Maximum lock count exceeded");
+        setState(nextc);
+        return true;
+    }
+    return false;
+}
+```
+>> hasQueuedPredecessors控制线程获取锁的公平性，分析如下：
+```java
+public final boolean hasQueuedPredecessors() {
+    Node t = tail;
+    Node h = head;
+    Node s;
+    return h != t &&
+        ((s = h.next) == null || s.thread != Thread.currentThread());
+}
+```
+方法分析如下：  
+- 如果h==t，说明AQS队列中没有节点，那么直接返回false，上层方法就进入尝试获取锁的方法。
+- 如果队列中有Node，但是Node成员变量thread不是当前线程，那么hasQueuedPredecessors返回true，该线程阻塞；如果是当前线程，那么hasQueuedPredecessors返回false。
+
 ### ReentrantLock unlock释放锁分析：
 ```java
 public void unlock() {
