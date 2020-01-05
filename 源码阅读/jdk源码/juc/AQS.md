@@ -183,6 +183,17 @@ private final boolean parkAndCheckInterrupt() {
 
 ### AQS 独占模式的release释放锁：
 ```java
+public final boolean release(int arg) {
+    // 由子类重写
+    if (tryRelease(arg)) {
+        Node h = head;
+        if (h != null && h.waitStatus != 0)
+            unparkSuccessor(h);
+        return true;
+    }
+    return false;
+}
+
 private void unparkSuccessor(Node node) {
     int ws = node.waitStatus;
     if (ws < 0)
@@ -205,4 +216,53 @@ private void unparkSuccessor(Node node) {
 }
 ```
 
->> 可重入锁基于AQS，AQS是基于state、队列来完成的。
+> 可重入锁基于AQS，AQS是基于state、队列来完成的。使用独占的方式，是与具体的线程进行绑定的，就是说如果一个线程获取到了资源，就会标记这个线程获取到了，其他线程再想操作state获取资源时，就会阻塞。
+
+### AQS共享模式分析：
+```java
+public final void acquireShared(int arg) {
+    // 尝试获取共享锁
+    if (tryAcquireShared(arg) < 0)
+        // 获取共享锁失败
+        doAcquireShared(arg);
+}
+```
+```java
+private void doAcquireShared(int arg) {
+    // 把当前线程构造共享节点，加入AQS阻塞队列
+    final Node node = addWaiter(Node.SHARED);
+    boolean failed = true;
+    try {
+        boolean interrupted = false;
+        for (;;) {
+            final Node p = node.predecessor();
+            if (p == head) {
+                // 尝试获取共享锁
+                int r = tryAcquireShared(arg);
+                if (r >= 0) {
+                    setHeadAndPropagate(node, r);
+                    p.next = null; // help GC
+                    if (interrupted)
+                        selfInterrupt();
+                    failed = false;
+                    return;
+                }
+            }
+            // 挂起线程
+            if (shouldParkAfterFailedAcquire(p, node) &&
+                parkAndCheckInterrupt())
+                interrupted = true;
+        }
+    } finally {
+        if (failed)
+            cancelAcquire(node);
+    }
+}
+```
+> AQS共享模式下，与独占模式有很大相似之处。
+
+
+## AQS独占模式与共享模式总结：
+<img src="../../../imgs/AQS.png" height=300px width=800px>
+
+
