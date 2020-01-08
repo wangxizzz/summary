@@ -223,11 +223,13 @@ private void unparkSuccessor(Node node) {
 ```java
 public final void acquireShared(int arg) {
     // 尝试获取共享锁
+    // 取共享锁失败的线程也会阻塞,比如读写锁，读锁线程发现写锁已被占用，因此会进入阻塞状态
     if (tryAcquireShared(arg) < 0)
-        // 获取共享锁失败
         doAcquireShared(arg);
 }
 ```
+> 获取共享锁失败的线程也会阻塞,比如读写锁，读锁线程发现写锁已被占用，因此会进入阻塞状态。
+
 ```java
 private void doAcquireShared(int arg) {
     // 把当前线程构造共享节点，加入AQS阻塞队列

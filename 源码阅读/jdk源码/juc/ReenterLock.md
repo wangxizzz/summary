@@ -107,7 +107,7 @@ public final boolean hasQueuedPredecessors() {
 ```
 方法分析如下：  
 - 如果h==t，说明AQS队列中没有节点，那么直接返回false，上层方法就进入尝试获取锁的方法。
-- 如果队列中有Node，但是Node成员变量thread不是当前线程，那么hasQueuedPredecessors返回true，该线程阻塞；如果是当前线程，那么hasQueuedPredecessors返回false。
+- 如果队列中有Node，但是head节点的第一个节点Node成员变量thread不是当前线程，那么hasQueuedPredecessors返回true，该线程阻塞；如果是当前线程，那么hasQueuedPredecessors返回false。
 
 ### ReentrantLock unlock释放锁分析：
 ```java
