@@ -10,3 +10,6 @@
 -  sudo du -h --max-depth=1|grep "G"
     - 错误写法：
         - du -ah --max-depth=1 | sort -nrk1 | head -n 10
+
+3.**找出一个(或多个工程)文件中包含"Exception"的文件**
+- ？？？
