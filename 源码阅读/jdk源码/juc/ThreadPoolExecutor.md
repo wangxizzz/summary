@@ -34,4 +34,4 @@ private static int workerCountOf(int c)  { return c & CAPACITY; }
 private static int ctlOf(int rs, int wc) { return rs | wc; }
 ```
 
-## 
+### 状态变量的介绍：
