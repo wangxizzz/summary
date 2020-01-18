@@ -496,7 +496,9 @@ void interruptIfStarted() {
     if (getState() >= 0 && (t = thread) != null && !t.isInterrupted()) {
         try {
             t.interrupt();
-        } catch (SecurityException ignore) {
+        } 
+        // 注意忽略异常的写法
+        catch (SecurityException ignore) {
         }
     }
 }
