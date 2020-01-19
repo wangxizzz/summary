@@ -48,6 +48,35 @@ SHUTDOWN -> TIDYING：当任务队列和线程池都清空后，会由 SHUTDOWN 
 STOP -> TIDYING：当任务队列清空后，发生这个转换  
 TIDYING -> TERMINATED：这个前面说了，当 terminated() 方法结束后  
 
+### 通用构造函数分析：
+```java
+public ThreadPoolExecutor(int corePoolSize,
+                            int maximumPoolSize,
+                            long keepAliveTime,
+                            TimeUnit unit,
+                            BlockingQueue<Runnable> workQueue,
+                            ThreadFactory threadFactory,
+                            RejectedExecutionHandler handler) {
+    if (corePoolSize < 0 ||
+        maximumPoolSize <= 0 ||
+        maximumPoolSize < corePoolSize ||
+        keepAliveTime < 0)
+        throw new IllegalArgumentException();
+    if (workQueue == null || threadFactory == null || handler == null)
+        throw new NullPointerException();
+    this.acc = System.getSecurityManager() == null ?
+            null :
+            AccessController.getContext();
+    this.corePoolSize = corePoolSize;
+    this.maximumPoolSize = maximumPoolSize;
+    this.workQueue = workQueue;
+    // 这里会初始化 keepAliveTime 字段，统一转化为纳秒.此字段控制获取task的时间，间接实现线程消亡策略的实现。
+    this.keepAliveTime = unit.toNanos(keepAliveTime);
+    this.threadFactory = threadFactory;
+    this.handler = handler;
+}
+```
+
 ### execute(Runnable command)介绍
 ```java
 public void execute(Runnable command) {
@@ -321,7 +350,7 @@ private Runnable getTask() {
             return null;
         }
         int wc = workerCountOf(c);
-        // 如果允许【核心】线程消亡或者 worker线程数大于corePoolSize,timed=true
+        // 如果允许【核心】线程消亡(默认是false，不允许消亡)或者 worker线程数大于corePoolSize,timed=true
         boolean timed = allowCoreThreadTimeOut || wc > corePoolSize;
 
         if ((wc > maximumPoolSize || (timed && timedOut))
@@ -333,6 +362,8 @@ private Runnable getTask() {
         }
 
         try {
+            // 如果timed=true,那么就会等待keepAliveTime时间，获取队列的任务，如果获取的task为null,说明为idle线程，需要被回收。在这里体现出线程等待一定时间被回收的策略。
+            // keepAliveTime是在ThreadPoolExecutor的构造函数初始化。
             Runnable r = timed ?
                 workQueue.poll(keepAliveTime, TimeUnit.NANOSECONDS) :
                 workQueue.take();
