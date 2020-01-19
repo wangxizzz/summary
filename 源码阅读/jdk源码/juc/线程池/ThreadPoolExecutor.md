@@ -344,7 +344,7 @@ private Runnable getTask() {
         int c = ctl.get();
         int rs = runStateOf(c);
 
-        // Check if queue empty only if necessary.
+        // 代码2 Check if queue empty only if necessary. 
         if (rs >= SHUTDOWN && (rs >= STOP || workQueue.isEmpty())) {
             decrementWorkerCount();
             return null;
@@ -362,8 +362,12 @@ private Runnable getTask() {
         }
 
         try {
-            // 如果timed=true,那么就会等待keepAliveTime时间，获取队列的任务，如果获取的task为null,说明为idle线程，需要被回收。在这里体现出线程等待一定时间被回收的策略。
+            // 如果timed=true,那么就会等待keepAliveTime时间，获取队列的任务，如果获取的task为null,
+            // 说明为idle线程，需要被回收。在这里体现出线程等待一定时间被回收的策略。
             // keepAliveTime是在ThreadPoolExecutor的构造函数初始化。
+            // 如果timed=false，此时allowCoreThreadTimeOut默认是false,
+            // 那么意味着大于核心线程数的空闲线程已经全部回收完毕，那么此时核心线程数就会阻塞在take方法，
+            // 不会被回收。
             Runnable r = timed ?
                 workQueue.poll(keepAliveTime, TimeUnit.NANOSECONDS) :
                 workQueue.take();
@@ -372,6 +376,8 @@ private Runnable getTask() {
             // 如果获取的任务为null，设置timedOut = true, 说明有线程是idle状态，继续for循环，即可回收idle现线程
             timedOut = true;
         } catch (InterruptedException retry) {
+            // 当调用shutDown()方法时，会中断核心线程数调用workQueue.take()阻塞的线程，然后继续
+            // for循环，走到代码2w部分，进而回收线程，达到关闭线程池的目的。
             timedOut = false;
         }
     }
