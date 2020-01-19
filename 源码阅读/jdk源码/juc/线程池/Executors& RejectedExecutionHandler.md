@@ -24,6 +24,7 @@ public static ExecutorService newSingleThreadExecutor() {
 ```
 
 ### 拒绝策略：
+**```注意：拒绝策略不要配置成DiscardPolicy与DiscardOldestPolicy，因为如果在被拒绝任务返回的Future上调用无参的get方法时，线程会一直阻塞。```**
 ```java
 // 默认拒绝策略，不处理任务(丢弃任务)，然后抛出异常
 public static class AbortPolicy implements RejectedExecutionHandler {
