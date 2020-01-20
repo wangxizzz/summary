@@ -41,3 +41,6 @@
 18、ctrl + shift + N 可以在idea中按照名字快速的查找文件
 
 19、ctrl + w 可以选中一个单词
+
+20、查看接口的实现类图：
+比如：AbstractResource ，想查看其实现类的类图结构，那么先show diagrams AbstractResource ，打开新新窗口后，然后选中某个类，单机右键，show implements(或者 ctrl + alt + B)，即可看到所有实现类，然后ctrl+A，全选，回车即可。
