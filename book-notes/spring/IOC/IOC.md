@@ -124,7 +124,7 @@ checkMergedBeanDefinition(mbd, beanName, args);
 - 对于依赖的 Bean ，它会优先加载，所以，在 Spring 的加载顺序中，在初始化某一个 Bean 的时候，首先会初始化这个 Bean 的依赖
 
 ### 不同作用域的 Bean 实例化
-```真正创建Bean的地方```
+```真正创建Bean的地方，详情请戳 ```<a href="createBean.md">bean的创建</a>
 ```java
 // 创建bean实例，如果是单例模式
 if (mbd.isSingleton()) {
