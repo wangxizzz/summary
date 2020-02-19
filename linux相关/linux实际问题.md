@@ -12,4 +12,5 @@
         - du -ah --max-depth=1 | sort -nrk1 | head -n 10
 
 3.**找出一个(或多个工程)文件中包含"Exception"的文件**
-- ？？？
+- 格式：grep -r "{关键字}"  {路径}
+    - 例子： grep -r "移位操作" ~/Document/summary
