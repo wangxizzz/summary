@@ -159,8 +159,9 @@ origin https://github.com/schacon/ticgit (push)
 
 ****
 
-## Git别名
+## Git配置相关
 
+### Git别名配置相关
 $ git config --global alias.co checkout
 
 $ git config --global alias.br branch
@@ -170,6 +171,11 @@ $ git config --global alias.ci commit
 $ git config --global alias.st status
 
 git config --global alias.last 'log -1 HEAD'  // 相当于git log -1
+
+### Git其他配置相关：
+git config --add --global core.filemode false 全局配置忽略文件权限的变更。(如果局部配置，就去掉--global)
+
+git config --get core.filemode 获取core.filemode的配置信息
 
 ## git diff
 - git diff --name-only  origin/master -G @Bean : 找出和master分支diff的代码中有@Bean字符串。
