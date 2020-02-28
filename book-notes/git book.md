@@ -269,6 +269,16 @@ git config --get core.filemode 获取core.filemode的配置信息
 - 参考文章：https://juejin.im/post/5b0e5adc6fb9a009d82e4f20
 
 
+## git文件权限问题：
+100644：
+- 100指的是，提交文件的类型，代表普通文件.
+- 644：<a href="../linux相关/linux文件权限.md">linux文件权限</a>
+
+### git文件权限问题描述：
+本地提交到gitlab上，发现整个工程的文件，都diff出来了。diff的是 filemode 由 644变为755,文件内容并没有改变。  
+解决办法：
+    利用idea中的工具，具体在 VCS-checkout from version control-Git，这样操作来clone项目工程，这样clone下来就不会改变工程中的文件权限。不要使用sudo权限去克隆，否则就会出现上面的问题。
+
 ## Git应用场景：
 
 **1.git使用情景：commit之后，想撤销commit**（reset的用法）
