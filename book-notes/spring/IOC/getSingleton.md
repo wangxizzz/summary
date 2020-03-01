@@ -44,37 +44,24 @@ protected Object getSingleton(String beanName, boolean allowEarlyReference) {
 ```java
 // DefaultSingletonBeanRegistry.java
 
-/**
- * Cache of singleton objects: bean name to bean instance.
- *
- * 存放的是单例 bean 的映射。
- *
- * 对应关系为 bean name --> bean instance
- */
-private final Map<String, Object> singletonObjects = new ConcurrentHashMap<>(256);
+一级缓存：
+/** 保存所有的singletonBean的实例 */
+private final Map<String, Object> singletonObjects = new ConcurrentHashMap<String, Object>(64);
 
-/**
- * Cache of singleton factories: bean name to ObjectFactory.
- *
- * 存放的是 ObjectFactory，可以理解为创建单例 bean 的 factory 。
- *
- * 对应关系是 bean name --> ObjectFactory
- **/
-private final Map<String, ObjectFactory<?>> singletonFactories = new HashMap<>(16);
+二级缓存：
+/** 保存所有早期创建的Bean对象，这个Bean还没有完成依赖注入(属性填充) */
+private final Map<String, Object> earlySingletonObjects = new HashMap<String, Object>(16);
+三级缓存：
+/** 保存bean的早期引用ObjectFactory*/
+private final Map<String, ObjectFactory<?>> singletonFactories = new HashMap<String, ObjectFactory<?>>(16);
+ 
+/** 保存所有已经完成初始化的Bean的名字（name） */
+private final Set<String> registeredSingletons = new LinkedHashSet<String>(64);
+ 
+/** 标识指定name的Bean对象是否处于创建状态  这个状态非常重要 */
+private final Set<String> singletonsCurrentlyInCreation =
+	Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>(16));
 
-/**
- * Cache of early singleton objects: bean name to bean instance.
- *
- * 存放的是早期的 bean，对应关系也是 bean name --> bean instance。
- *
- * 它与 {@link #singletonFactories} 区别在于 earlySingletonObjects 中存放的 bean 不一定是完整。
- *
- * 从 {@link #getSingleton(String)} 方法中，我们可以了解，bean 在创建过程中就已经加入到 earlySingletonObjects 中了。
- * 所以当在 bean 的创建过程中，就可以通过 getBean() 方法获取。
- *
- * 这个 Map 也是【循环依赖】的关键所在。
- */
-private final Map<String, Object> earlySingletonObjects = new HashMap<>(16);
 ```
 
 ## getObjectForBeanInstance方法分析：
