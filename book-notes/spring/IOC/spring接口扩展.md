@@ -45,7 +45,7 @@ private void invokeAwareMethods(final String beanName, final Object bean) {
 - NotificationPublisherAware：JMX通知
 - BeanNameAware：声明Spring Bean的名字
 
-# BeanPostProcessor
+# BeanPostProcessor接口
 BeanPostProcessor 的作用：在 Bean 完成实例化后，如果我们需要对其进行一些配置、增加一些自己的处理逻辑，那么请使用 BeanPostProcessor。在对bean进行初始化时，会回调BeanPostProcessor的方法。比如：
 ```java
 protected Object initializeBean(final String beanName, final Object bean, @Nullable RootBeanDefinition mbd) {
@@ -104,4 +104,48 @@ public interface BeanPostProcessor {
 - BeanPostProcessor 的作用域是容器级别的，它只和所在的容器相关 ，当 BeanPostProcessor 完成注册后，它会应用于所有跟它在同一个容器内的 bean 。
 - BeanFactory 和 ApplicationContext 对 BeanPostProcessor 的处理不同，ApplicationContext 会自动检测所有实现了 BeanPostProcessor 接口的 bean，并完成注册，但是使用 BeanFactory 容器时则需要手动调用 AbstractBeanFactory#addBeanPostProcessor(BeanPostProcessor beanPostProcessor) 方法来完成注册
 - ApplicationContext 的 BeanPostProcessor 支持 Ordered，而 BeanFactory 的 BeanPostProcessor 是不支持的，原因在于ApplicationContext 会对 BeanPostProcessor 进行 Ordered 检测并完成排序，而 BeanFactory 中的 BeanPostProcessor 只跟注册的顺序有关。
+
+# InitializingBean接口和init-method
+```java
+// 调用用户自定义初始化方法
+protected void invokeInitMethods(String beanName, final Object bean, @Nullable RootBeanDefinition mbd)
+			throws Throwable {
+	// 检查是否 InitializingBean，如果是的话需要调用 afterPropertiesSet 方法
+	boolean isInitializingBean = (bean instanceof InitializingBean);
+	if (isInitializingBean && (mbd == null || !mbd.isExternallyManagedInitMethod("afterPropertiesSet"))) {
+		if (logger.isTraceEnabled()) {
+			logger.trace("Invoking afterPropertiesSet() on bean with name '" + beanName + "'");
+		}
+		if (System.getSecurityManager() != null) {
+			try {
+				AccessController.doPrivileged((PrivilegedExceptionAction<Object>) () -> {
+					((InitializingBean) bean).afterPropertiesSet();
+					return null;
+				}, getAccessControlContext());
+			}
+			catch (PrivilegedActionException pae) {
+				throw pae.getException();
+			}
+		}
+		else {
+			((InitializingBean) bean).afterPropertiesSet();
+		}
+	}
+
+	if (mbd != null && bean.getClass() != NullBean.class) {
+		String initMethodName = mbd.getInitMethodName();
+		if (StringUtils.hasLength(initMethodName) &&
+				!(isInitializingBean && "afterPropertiesSet".equals(initMethodName)) &&
+				!mbd.isExternallyManagedInitMethod(initMethodName)) {
+			// 激活用户自定义的初始化方法(底层利用反射执行)
+			invokeCustomInitMethod(beanName, bean, mbd);
+		}
+	}
+}
+```
+
+从 #invokeInitMethods(...) 方法中，我们知道 init-method 指定的方法会在 #afterPropertiesSet() 方法之后执行，如果 #afterPropertiesSet() 方法的执行的过程中出现了异常，则 init-method 是不会执行的，而且由于 init-method 采用的是反射执行的方式，所以 #afterPropertiesSet() 方法的执行效率一般会高些，但是并不能排除我们要优先使用 init-method，主要是因为它消除了 bean 对 Spring 的依赖，Spring 没有侵入到我们业务代码，这样会更加符合 Spring 的理念。诚然，init-method 是基于 xml 配置文件的，就目前而言，我们的工程几乎都摒弃了配置，而采用注释的方式，那么 @PreDestory 可能更好。
+
+至此，InitializingBean 和 init-method 已经分析完毕了，对于DisposableBean 和 destroy-method ，他们和 init 相似。
+
 
