@@ -37,6 +37,21 @@ http://www.runoob.com/redis/redis-keys.html 这个上面介绍的命令链接可
     - 
 - **sorted set**
     - Redis 有序集合和集合一样也是string类型元素的集合,且不允许重复的成员。不同的是每个元素都会关联一个double类型的分数。redis正是通过分数来为集合中的成员进行从小到大的排序。有序集合的成员是唯一的,但分数(score)却可以重复。集合是通过哈希表实现的，所以添加，删除，查找的复杂度都是O(1)
+    - zrange key start stop 
+        - 取出元素,会按照分数有小到大排序，分数小的会被先取出来。有点像FIFO. 注意：start,stop都是下标，并且包含下标的元素。
+        - zrange wxi 0 0 : 表示取出排序后的第一个元素
+        - zrange wxi 0 1 :取出排序后的第二个元素
+    - zscore wxi dd:
+        - 判断sorted set中是否包含dd元素，返回Double(注意是包装类型)，如果没有，返回null,反之返回对应的score.
+    - zrem key member member ... 
+        - 批量删除zset里的元素。
+        - zrem wxi aa bb cc
+    - zadd wxi 2 aa :
+        - 当然这个命令可以批量插入
+        - 添加元素。如果元素本身就存在，那么更新score值，返回Integer=0，如果不存在，则返回Integer=1
+- **redis-server本地后台启动命令：**
+    - 修改redis.conf文件的daemonize yes .
+    - ./redis-server ../redis.conf 即可。
 2.**redis的5种数据结构的应用场景：**
 - http://www.cleey.com/blog/single/id/808.html
 
