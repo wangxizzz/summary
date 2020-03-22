@@ -117,9 +117,10 @@ http://www.runoob.com/redis/redis-keys.html 这个上面介绍的命令链接可
 
 9.**关于redis主从复制**
 - https://www.cnblogs.com/kismetv/p/9236731.html
+- master可以读写，slave只负责读(如果有写命令，会重定向到master节点)，master接收写命令，会同步到slave节点，这样叫做主从复制和一致性。与mysql一致。
 
 10.**redis集群与slot分配**
-
+- master节点管理槽位，slave节点只是复制master节点的数据，不负责管理槽位。槽位是2048个字节，只用来判断请求的数据是否在此机器上，如果在返回，不在会重定向其他机器。
 
 **redis的事件循环(Loop)**
 - redis服务器进程就是一个事件循环，这个循环中文件事件负责接受客户端的命令请求，以及想客户端发送命令回复，循环中的时间事件负责执行定时的任务。
