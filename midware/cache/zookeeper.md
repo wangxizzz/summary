@@ -53,3 +53,7 @@ clientPort=2181
 - 数据发布与订阅，即所谓的配置中心。
     - 发布者把把数据发布到zk的节点上，供订阅者来订阅。发布订阅有推拉模式，zk两种模式混合使用：客户端向服务端注册自己感兴趣的节点，一旦该节点数据发生变化，服务会向相应的客户端发送watcher事件通知，客户端收到这个通知后，会向服务端拉取最新的配置数据。
 
+8.**zk可视化界面 zkUI**
+- https://blog.csdn.net/lovesummerforever/article/details/48997797
+- https://www.gmlyo.com/2018/06/28/Zookeeper%E5%8F%AF%E8%A7%86%E5%8C%96%E7%95%8C%E9%9D%A2zkui%E6%90%AD%E5%BB%BA%E4%B8%8E%E9%85%8D%E7%BD%AE/
+- https://www.cnblogs.com/pageBlog/p/11703152.html
