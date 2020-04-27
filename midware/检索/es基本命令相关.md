@@ -8,10 +8,26 @@ curl 'http://localhost:9200/?pretty'
 ```
 获取整个集群的索引  
 加上 -i 参数，可以获取响应头信息
+
+```bash
+curl -XGET 'http://localhost:9200/_mapping?pretty=true'
+```
+查看index下的所有type
+
+```bash
+curl -X GET 'http://localhost:9200/megacorp/employee/_search'
+```
+查询 megacorp/employee 该index该type下的所有doc记录
+
 ```bash
 curl -X PUT 'http://localhost:9200/blog'
 ```
  创建一个名为blog索引
+
+```bash
+curl -X DELETE 'localhost:9200/weather'
+```
+删除一个index
 
 ```bash
 curl -XGET 'http://localhost:9200/_count?pretty' -H 'content-Type:application/json' -d '
@@ -48,9 +64,15 @@ curl -X GET 'http://localhost:9200/megacorp/employee/1' -H  'content-Type:applic
 我们只要执行HTTP GET请求并指出文档的“地址”——索引、类型和ID既可。根据这三部分信息，我们就可以返回原始JSON文档
 
 ```bash
-curl -X GET 'http://localhost:9200/megacorp/employee/_search'
+
 ```
-查询 megacorp/employee 该index该type下的所有doc记录
+根据id查询单条doc的记录
+
+```bash
+curl -XGET 'http://localhost:9200/blog/_mapping/article?pretty'
+```
+可以查看blog索引 article类型的doc字段的映射关系(简单来说就是doc字段的结构)
+
 
 ```bash
 curl -X GET 'http://localhost:9200/megacorp/employee/_search?q=first_name:周二珂'
