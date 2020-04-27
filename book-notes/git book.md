@@ -357,10 +357,10 @@ git pull origin 分支名
 **5.git忽略.idea下的文件**  
 **注意：**.gitignore只能忽略那些原来没有被track的文件，如果某些文件已经被纳入了版本管理中，则修改.gitignore是无效的。那么解决方法就是先把本地缓存删除（改变成未track状态），然后再提交：  
 输入：  
-git rm -r –cached filePath  
+git rm -r –-cached filePath  
 git commit -m “remove xx”  
 或者：  
-git rm -r –cached .  
+git rm -r –-cached .  
 git add .  
 git commit -m “update .gitignore”    
 来解释下几个参数 -r 是删除文件夹及其子目录 –cached 是删除暂存区里的文件而不删除工作区里的文件，第一种是删除某个文件，第二种方法就把所有暂存区里的文件删了，再加一遍，相当于更新了一遍。
@@ -369,6 +369,13 @@ git commit -m “update .gitignore”
 - git config --global push.default "current"
 - 参考网址：https://blog.csdn.net/zhihuirensheng123/article/details/82773914
 - git pull 就没必要设置默认分支了。
+
+**github创建了仓库，如何与本地仓库合并？**
+- git init
+- git remote add origin http地址
+- git pull origin master 此时会报错，```fatal: refusing to merge unrelated histories```
+- git pull origin master --allow-unrelated-histories
+    - 使用这个命令强制合并
 
 ## 关于idea中的Version Control的可视化界面的操作：
 <img src="../imgs/CVS1.png">
