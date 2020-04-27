@@ -42,6 +42,8 @@
             wc -c 查看字节数
             grep "Exception" error.log　找到error.log文件中有Exception的行
             sort 排序
+            sort -u 表示在输出行中去掉重复行
+            sort -n -k 2 -t : facebook.txt -t参数表示根据指定分隔符来切分每一行文本(本例是:)
             uniq -c　去重，-c或--count 在每列旁边显示该行重复出现的次数，注意：一般与sort连用，因为这个命令只能统计相互挨着的行。
             sort -n -k1　参数解释：-n　按照数字排序，-k1表示第一列(k 代表key 键)　　参照上面网址。
     如何查看所有异常和异常栈；
