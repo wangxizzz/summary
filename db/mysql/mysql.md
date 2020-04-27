@@ -126,4 +126,19 @@ select * from bugs where ass_to is not NULL;
 7、select id,name from table_a where dt < now();  
 > 这条语句如果时间周期比较短，那扫描的行数不多，如果有十几年了，那就需要指定一个时间范围(利用between and)，否则扫描的行数多个，影响性能.  
 
-8、
+8、Mac下的mysql:
+-  ./mysql -u root -p
+- 密码：123456  用户: root
+- 查看MySQL默认端口号(需要登录mysql)：show global variables like 'port';
+
+9.Mac下启停mysql服务：
+```bash
+##启动MySQL服务
+sudo /usr/local/MySQL/support-files/mysql.server start
+
+##停止MySQL服务
+sudo /usr/local/mysql/support-files/mysql.server stop
+
+##重启MySQL服务
+sudo /usr/local/mysql/support-files/mysql.server restart
+```
