@@ -1,4 +1,7 @@
-## 基本命令相关
+# 基本命令相关
+
+## 查询相关：
+
 ```bash
 curl 'http://localhost:9200/?pretty'  
 ```
@@ -12,22 +15,12 @@ curl 'http://localhost:9200/?pretty'
 ```bash
 curl -XGET 'http://localhost:9200/_mapping?pretty=true'
 ```
-查看index下的所有type
+查看所有index下的所有type
 
 ```bash
 curl -X GET 'http://localhost:9200/megacorp/employee/_search'
 ```
 查询 megacorp/employee 该index该type下的所有doc记录
-
-```bash
-curl -X PUT 'http://localhost:9200/blog'
-```
- 创建一个名为blog索引
-
-```bash
-curl -X DELETE 'localhost:9200/weather'
-```
-删除一个index
 
 ```bash
 curl -XGET 'http://localhost:9200/_count?pretty' -H 'content-Type:application/json' -d '
@@ -39,24 +32,6 @@ curl -XGET 'http://localhost:9200/_count?pretty' -H 'content-Type:application/js
 '
 ```
 获取整个集群doc的数量
-
-```bash
-curl -X POST http://localhost:9200/blog/article -H 'content-Type:application/json' -d '{ "author": "zhengkai.blog.csdn.net", "createtime": 1563689639575, "id": 2, "text": "Elasticsearch是一个开源的分布式、高扩展、高实时的RESTful 搜索和分析引擎，基于Lucene......", "title": "SpringBoot整合ElasticSearch" }'
-```
-在bolg索引 新建类别为article，并且创建一条doc记录
->> 注意：curl如果报错{"error":"Content-Type header [application/x-www-form-urlencoded] is not supported","status":406}：**需要设置在curl中header信息：-H 'content-Type:application/json'**
-
-```bash
-curl -XPUT 'http://localhost:9200/megacorp/employee/1' -H  'content-Type:application/json' -d \ '
-{
-    "first_name" :  "Douglas",
-    "last_name" :   "Fir",
-    "age" :         35,
-    "about":        "I like to build cabinets",
-    "interests":  [ "forestry" ]
-}'
-```
-直接创建index（名为megacorp）、type（名为employee）、doc、field. 多次PUT会覆盖字段数据
 
 ```bash
 curl -X GET 'http://localhost:9200/megacorp/employee/1' -H  'content-Type:application/json'
@@ -78,3 +53,32 @@ curl -XGET 'http://localhost:9200/blog/_mapping/article?pretty'
 curl -X GET 'http://localhost:9200/megacorp/employee/_search?q=first_name:周二珂'
 ```
 简单利用关键字搜索（注意：如果没设置字段的类型，默认无法搜索中文）
+
+## 写相关命令：
+```bash
+curl -X PUT 'http://localhost:9200/blog'
+```
+ 创建一个名为blog索引
+
+```bash
+curl -X DELETE 'localhost:9200/weather'
+```
+删除一个index
+
+```bash
+curl -X POST http://localhost:9200/blog/article -H 'content-Type:application/json' -d '{ "author": "zhengkai.blog.csdn.net", "createtime": 1563689639575, "id": 2, "text": "Elasticsearch是一个开源的分布式、高扩展、高实时的RESTful 搜索和分析引擎，基于Lucene......", "title": "SpringBoot整合ElasticSearch" }'
+```
+在bolg索引 新建类别为article，并且创建一条doc记录
+>> 注意：curl如果报错{"error":"Content-Type header [application/x-www-form-urlencoded] is not supported","status":406}：**需要设置在curl中header信息：-H 'content-Type:application/json'**
+
+```bash
+curl -XPUT 'http://localhost:9200/megacorp/employee/1' -H  'content-Type:application/json' -d \ '
+{
+    "first_name" :  "Douglas",
+    "last_name" :   "Fir",
+    "age" :         35,
+    "about":        "I like to build cabinets",
+    "interests":  [ "forestry" ]
+}'
+```
+直接创建index（名为megacorp）、type（名为employee）、doc、field. 多次PUT会覆盖字段数据
