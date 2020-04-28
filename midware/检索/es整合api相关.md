@@ -1,26 +1,9 @@
-## 安装启动相关
-1.**mac安装报错，Failed to create native process factories for Machine Learning**
-
-在安装目录 config/elasticsearch.yml 增加配置```xpack.ml.enabled: false```，关闭机器学习相关东西。
-
-2.**后台启动：**
-> ./bin/elasticsearch -d 
-
-## 基本概念：
-- es主要分为：索引，type,doc,field
-- 其中index相当于db, type相当于table, doc相当于 单个记录
-```
-Relational DB -> Databases -> Tables -> Rows -> Columns
-Elasticsearch -> Indices   -> Types  -> Documents -> Fields
-```
-
-## **elasticsearch Mapping、字段类型Field type详解:**  
-<a href="./es字段类型与mapping介绍.md">es字段类型与mapping介绍</a>
-
-## 基本命令相关
-<a href="./es基本命令相关.md">es基本命令相关</a>
-
 ## es整合springdata API相关
+Spring Data 的另一个强大功能，是根据方法名称自动实现功能。
+
+比如：你的方法名叫做：findByTitle，那么它就知道你是根据title查询，然后自动帮你完成，无需写实现类。
+
+当然，方法名称要符合一定的约定：
 <table>
 <thead>
 <tr>
@@ -127,9 +110,3 @@ Elasticsearch -> Indices   -> Types  -> Documents -> Fields
 </tr>
 </tbody>
 </table>
-
-
-
-
-
-

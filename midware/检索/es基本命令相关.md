@@ -18,6 +18,11 @@ curl -XGET 'http://localhost:9200/_mapping?pretty=true'
 查看所有index下的所有type
 
 ```bash
+curl -XGET 'http://localhost:9200/item/_mapping?pretty=true'
+```
+查看index名为item下的所有type
+
+```bash
 curl -X GET 'http://localhost:9200/megacorp/employee/_search'
 ```
 查询 megacorp/employee 该index该type下的所有doc记录
@@ -39,9 +44,9 @@ curl -X GET 'http://localhost:9200/megacorp/employee/1' -H  'content-Type:applic
 我们只要执行HTTP GET请求并指出文档的“地址”——索引、类型和ID既可。根据这三部分信息，我们就可以返回原始JSON文档
 
 ```bash
-
+curl -X GET 'http://localhost:9200/megacorp/employee/1'
 ```
-根据id查询单条doc的记录
+根据id=1查询单条doc的记录
 
 ```bash
 curl -XGET 'http://localhost:9200/blog/_mapping/article?pretty'
