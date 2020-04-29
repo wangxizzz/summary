@@ -39,7 +39,7 @@ curl -XGET 'http://localhost:9200/_count?pretty' -H 'content-Type:application/js
 获取整个集群doc的数量
 
 ```bash
-curl -X GET 'http://localhost:9200/megacorp/employee/1' -H  'content-Type:application/json'
+curl -X GET 'http://localhost:9200/item/docs/1?pretty' -H  'content-Type:application/json'
 ```
 我们只要执行HTTP GET请求并指出文档的“地址”——索引、类型和ID既可。根据这三部分信息，我们就可以返回原始JSON文档
 
@@ -87,3 +87,26 @@ curl -XPUT 'http://localhost:9200/megacorp/employee/1' -H  'content-Type:applica
 }'
 ```
 直接创建index（名为megacorp）、type（名为employee）、doc、field. 多次PUT会覆盖字段数据
+
+```bash
+curl -XPOST 'http://localhost:9200/item/docs/10/_update' -H  'content-Type:application/json' -d \ '
+{
+    "doc":{
+        "desc":"python基础"
+    }
+}'
+```
+更新具体字段的值
+```bash
+curl -XPOST 'http://localhost:9200/item/docs/9/_update' -H  'content-Type:application/json' -d \ '
+{
+    "doc":{
+        "desc":"python基础"
+    },
+    "upsert":{
+        "test":"我是test"
+    }
+}'
+```
+如果更新的文档不存在，那么利用upsert来添加一个初始化文档用于索引。
+
