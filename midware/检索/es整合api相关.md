@@ -110,3 +110,6 @@ Spring Data 的另一个强大功能，是根据方法名称自动实现功能�
 </tr>
 </tbody>
 </table>
+
+## Java High Level REST Client
+参考网址：https://www.jianshu.com/p/5cb91ed22956
