@@ -16,6 +16,9 @@ Elasticsearch -> Indices   -> Types  -> Documents -> Fields
 
 2、es是不允许修改一个已被索引字段的类型的，比如把text变为long，这会报错。解决办法是：重新建立一个字段，然后重新index.
 
+## 关于es的原理与数据迁移mysql:
+https://www.jianshu.com/p/56e755415e63
+
 ## **elasticsearch Mapping、字段类型Field type详解:**  
 <a href="./es字段类型与mapping介绍.md">es字段类型与mapping介绍</a>
 
