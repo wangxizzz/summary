@@ -49,9 +49,13 @@ http://www.runoob.com/redis/redis-keys.html 这个上面介绍的命令链接可
     - zadd wxi 2 aa :
         - 当然这个命令可以批量插入
         - 添加元素。如果元素本身就存在，那么更新score值，返回Integer=0，如果不存在，则返回Integer=1
-- **redis-server本地后台启动命令：**
-    - 修改redis.conf文件的daemonize yes .
-    - ./redis-server ../redis.conf 即可。
+- **redis启动相关问题：**
+    - redis-server后台启动：
+        - 修改redis.conf文件的daemonize yes .
+        - ./redis-server ../redis.conf 即可。
+    - redis启动报错：redis 5.0 CLUSTERDOWN The cluster is down
+        - 解决办法：这个是由于安装错误导致的，需要重新进行 修复一下。命令：```./redis-cli --cluster fix 127.0.0.1:6379```，然后重新连接即可、
+    
 2.**redis的5种数据结构的应用场景：**
 - http://www.cleey.com/blog/single/id/808.html
 
