@@ -24,9 +24,6 @@
 
 ６、ps -Lf  列出线程信息。
 
-1、du -ah --max-depth=1　查看当前目录下文件占用磁盘的大小。
-    du -ah --max-depth=1 | sort -nrk1 | head -n 1 可以查看当前目录最大的文件
-
 ２、ls -lhsrS　s表示sort，r表示reverse，S表示Size 当前目录下按照文件大小逆序排序列出。
     ls -lhsrt 表示按照时间倒序排序
     ls -a 可以查看一个目录下的隐藏文件
