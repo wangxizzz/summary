@@ -8,7 +8,7 @@
 
 2.**找出一个目录下的最大目录或者文件**
 -  sudo du -h --max-depth=1|grep "G"
-- 或者： du -h -d 1 ./   => 查看当前目录下文件占用大小
+- 或者： du -h -d 1|grep M ./   => 查看当前目录下文件占用大小
     - 错误写法：
         - du -ah --max-depth=1 | sort -nrk1 | head -n 10
 
