@@ -59,6 +59,47 @@ curl -X GET 'http://localhost:9200/megacorp/employee/_search?q=first_name:周二
 ```
 简单利用关键字搜索（注意：如果没设置字段的类型，默认无法搜索中文）
 
+```bash
+curl -X GET 'http://localhost:9200/term_test/docs/_search?pretty' -H  'content-Type:application/json' -d \ '
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "term": {
+            "title": "love"
+          }
+        },
+        {
+          "term": {
+            "title": "china"
+          }
+        }
+      ]
+    }
+  }
+}'
+
+# term是整个value精确匹配。上面例子会找出既包含love，也包含china的记录
+
+curl -X GET 'http://localhost:9200/term_test/docs/_search?pretty' -H  'content-Type:application/json' -d \ '
+{
+    "query":{  
+      "match":{  
+         "title":"love HuBei"
+      }
+   }
+}'
+
+# match是经过
+```
+对字段的值进行查询搜索。  
+先看看term的定义，term是代表完全匹配，也就是精确查询，搜索前不会再对搜索词进行分词拆解。(一般会与 should、must、must_not连用)      
+match在匹配时会对所查找的关键词进行分词，然后按分词匹配查找，而term会直接对关键词进行查找。一般模糊查找的时候，多用match，而精确查找时可以使用term。  
+参考：
+- https://www.jianshu.com/p/d5583dff4157
+- https://blog.csdn.net/tclzsn7456/article/details/79956625
+
 ## 写相关命令：
 ```bash
 curl -X PUT 'http://localhost:9200/blog'
