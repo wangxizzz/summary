@@ -120,11 +120,8 @@ curl -X POST http://localhost:9200/blog/article -H 'content-Type:application/jso
 ```bash
 curl -XPUT 'http://localhost:9200/megacorp/employee/1' -H  'content-Type:application/json' -d \ '
 {
-    "first_name" :  "Douglas",
-    "last_name" :   "Fir",
-    "age" :         35,
-    "about":        "I like to build cabinets",
-    "interests":  [ "forestry" ]
+    "usId":[1,2,3,6]
+    "peopleId":342423
 }'
 ```
 直接创建index（名为megacorp）、type（名为employee）、doc、field. 多次PUT会覆盖字段数据
