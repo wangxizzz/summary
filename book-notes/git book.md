@@ -35,7 +35,7 @@ Changes to be committed: 表示需要commit
 - -r 递归删除(删除目录), -f 强制删除
 
 **git rm --cached AA.java**
-- 此命令针对已经commit了有效(亲测有效)。
+- 此命令针对已经commit了有效(亲测有效),如果没有commit的文件，此命名是看不见的。
 - 此命令的变型：
     - git rm --cached --force -r .idea
         - 递归untracked .idea下的文件
