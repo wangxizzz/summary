@@ -1,3 +1,10 @@
+==============MAC下的Idea中快捷键============
+1、command + F12 查看一个类的所有字段与方法。
+2、control + option + o 格式化imports
+
+
+
+=============Windows==========
 1、ctrl shift n : 可以快速搜索项目依赖的jar的文件
 
 2、ctrl d : 可以快速复制一行
@@ -44,3 +51,4 @@
 
 20、查看接口的实现类图：
 比如：AbstractResource ，想查看其实现类的类图结构，那么先show diagrams AbstractResource ，打开新新窗口后，然后选中某个类，单机右键，show implements(或者 ctrl + alt + B)，即可看到所有实现类，然后ctrl+A，全选，回车即可。
+
