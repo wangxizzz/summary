@@ -1,13 +1,13 @@
-### 参考书籍：《Git》
-### 这篇记载的git命令，都是经过真实环境测试可用的。
-### 测试以  https://github.com/wangxizzz/gitdemo 仓库为基础进行测试，并且建立了三个分支，分别是master,wangxi01,wangxi02
+# 参考书籍：《Git》
+# 这篇记载的git命令，都是经过真实环境测试可用的。
+# 测试以  https://github.com/wangxizzz/gitdemo 仓库为基础进行测试，并且建立了三个分支，分别是master,wangxi01,wangxi02
 
 ```在idea中使用git，新创建的文件时红色，执行git add . 后,变为绿色，执行git commit 后，变为无色。```
 
 Changes not staged for commit:  表示还没有到commit阶段，需要add  
 Changes to be committed: 表示需要commit
 
-### 常用命令：
+# 常用命令：
 **git add:**
 - 把文件提交到暂存区。
 
@@ -109,7 +109,7 @@ git log --pretty=format 常用配置：
 - **注意：** 只适用于已经修改的文件，但还没放入暂存区(就是没执行git add .),此命令作用不大
 
 ****
-## 远程仓库的使用：
+# 远程仓库的使用：
 
 **git remote**
 - 列出远程仓库名称
@@ -159,7 +159,7 @@ origin https://github.com/schacon/ticgit (push)
 
 ****
 
-## Git配置相关
+# Git配置相关
 
 ### Git别名配置相关
 $ git config --global alias.co checkout
@@ -183,7 +183,7 @@ git config --get core.filemode 获取core.filemode的配置信息
     - -G @Bean 表示和master分支diff中有不同的地方有 @Bean 字符串
 
 
-## 分支
+# 分支
 **git pull origin master**
 - git fetch + git merge == git pull
 
@@ -242,7 +242,7 @@ git config --get core.filemode 获取core.filemode的配置信息
 所以它的创建和销毁都异常高效。 创建一个新分支就像是往一个文件中写入 41 个字节（ 40
 个字符和 1 个换行符） ， 如此的简单能不快吗？
 
-## Git回退：
+# Git回退：
 
 **git stash**
 - 保存当前工作进度(此时工作空间回到上次commit的状态)。
@@ -269,7 +269,7 @@ git config --get core.filemode 获取core.filemode的配置信息
 - 参考文章：https://juejin.im/post/5b0e5adc6fb9a009d82e4f20
 
 
-## git文件权限问题：
+# git文件权限问题：
 100644：
 - 100指的是，提交文件的类型，代表普通文件.
 - 644：<a href="../linux相关/linux文件权限.md">linux文件权限</a>
@@ -279,9 +279,9 @@ git config --get core.filemode 获取core.filemode的配置信息
 解决办法：
     利用idea中的工具，具体在 VCS-checkout from version control-Git，这样操作来clone项目工程，这样clone下来就不会改变工程中的文件权限。不要使用sudo权限去克隆，否则就会出现上面的问题。
 
-## Git应用场景：
+# Git应用场景：
 
-**1.git使用情景：commit之后，想撤销commit**（reset的用法）
+## 1.git使用情景：commit之后，想撤销commit（reset的用法）
 
 这样凉拌：（亲测有效）
 
@@ -322,7 +322,7 @@ HEAD^的意思是上一个版本，也可以写成HEAD~1
 - 参考网址： https://blog.csdn.net/w958796636/article/details/53611133
 
 
-**2.遇到问题-----git-----You have not concluded your merge (MERGE_HEAD exists) git拉取失败**  
+## 2.遇到问题-----git-----You have not concluded your merge (MERGE_HEAD exists) git拉取失败
 ```亲测有效```
 保留你本地的修改
 
@@ -338,7 +338,7 @@ git pull origin 分支名
 - 参考网址： https://blog.csdn.net/zzq900503/article/details/71173234
 
 
-**3.git如果在merge master时，不小心merge漏了几行代码，然后就点击了ok。后来发现想重新pull,把那几行代码拉下来，但是现实pull no items??** （亲测有效）
+## 3.git如果在merge master时，不小心merge漏了几行代码，然后就点击了ok。后来发现想重新pull,把那几行代码拉下来，但是现实pull no items?? （亲测有效）
 - 为什么会pull no items呢？
     - 因为已经merge过了，那么这两个分支会在同一个点上，你再怎么拉，仍然拉不下来（即使文件不一样）。
 - 解决办法:
@@ -346,7 +346,7 @@ git pull origin 分支名
         - 回退命令： git reste --hard commitId  (commitId最好从idea的可视化界面看Version Control-> log, 也可以git log查看)
 - 如果上述方式不行，那么先在自己分支reset到merge之前的代码，然后checkout到master的分支，执行git pull,把master拉倒最新，然后在切回自己的分支，执行git merge master即可，把master最新代码与本地分支合并。
 
-**4.git master代码回滚，本地分支merge master导致代码丢失解决办法：**  
+## 4.git master代码回滚，本地分支merge master导致代码丢失解决办法：
 使用git 的 revert 命令可以将丢失的代码找回，操作步骤如下：  
 1、本地分支merge master代码（执行完成后，本地代码丢失）  
 2、git commit -am "merge master" (提交这次merge结果)  
@@ -354,7 +354,7 @@ git pull origin 分支名
     gitLab上查找回滚的记录可找到该id。  其实本质就是把master的回滚操作在自己的分支revert掉了，因为本地分支已经merge过master了  
 4、git push
 
-**5.git忽略.idea下的文件**  
+## 5.git忽略.idea下的文件 
 **注意：**.gitignore只能忽略那些原来没有被track的文件，如果某些文件已经被纳入了版本管理中，则修改.gitignore是无效的。那么解决方法就是先把本地缓存删除（改变成未track状态），然后再提交：  
 输入：  
 git rm -r –-cached filePath  
@@ -365,17 +365,46 @@ git add .
 git commit -m “update .gitignore”    
 来解释下几个参数 -r 是删除文件夹及其子目录 –cached 是删除暂存区里的文件而不删除工作区里的文件，第一种是删除某个文件，第二种方法就把所有暂存区里的文件删了，再加一遍，相当于更新了一遍。
 
-**Git设置当前分支为默认push分支**
+## 6、Git设置当前分支为默认push分支
 - git config --global push.default "current"
 - 参考网址：https://blog.csdn.net/zhihuirensheng123/article/details/82773914
 - git pull 就没必要设置默认分支了。
 
-**github创建了仓库，如何与本地仓库合并？**
+## 7、github创建了仓库，如何与本地仓库合并？(如果无效，参见第8条)
 - git init
 - git remote add origin http地址
 - git pull origin master 此时会报错，```fatal: refusing to merge unrelated histories```
 - git pull origin master --allow-unrelated-histories
     - 使用这个命令强制合并
+## 8、git上创建了一个仓库，如何与本地idea创建的项目合并：
+```bash
+# Git global setup
+git config --global user.name ""
+git config --global user.email ""
+
+# Create a new repository
+git clone git地址
+cd aaa
+touch README.md
+git add README.md
+git commit -m "add README"
+git push -u origin master
+
+# Existing folder(本地创建的idea工程想和远程的仓库合并，注意本地项目最好和远程仓库名称一致)
+cd existing_folder(本地文件夹)
+git init
+git remote add origin git地址
+git add .
+git commit -m "Initial commit"
+git push -u origin master
+
+# Existing Git repository
+cd existing_repo
+git remote add origin git地址
+git push -u origin --all
+git push -u origin --tags
+```
+
 
 ## 关于idea中的Version Control的可视化界面的操作：
 <img src="../imgs/CVS1.png">
