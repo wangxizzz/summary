@@ -142,3 +142,11 @@ sudo /usr/local/mysql/support-files/mysql.server stop
 ##重启MySQL服务
 sudo /usr/local/mysql/support-files/mysql.server restart
 ```
+
+10.查看mysql的表结构和列名：
+```bash
+# 可以查看列名
+desc user_table;
+# 查看建表语句
+show create table user_table;
+```
