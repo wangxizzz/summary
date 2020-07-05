@@ -10,6 +10,29 @@ match_phrase query：满足下面两个条件才会被搜索到
 - （1）分词后所有词项都要出现在该字段中
 - （2）字段中的词项顺序要一致
 
+## ES的query string用法：
+```
+简单入门
+条件查询
+如 name 等于 guozheng
+name:guozheng
+name 等于 guozheng 或者 等于 zhangsan
+name:(guozheng OR zhangsan)
+范围查询
+age 大于等于10 小于等于20
+age:[10 TO 20]
+age 大于等于10 小于20
+age:[10 TO 20}
+
+时间范围查询
+time:["2020-06-30 11:10:10" TO "2020-07-02 10:10:10"]
+
+组合查询（AND OR NOT）
+例如 性别是男 且 年龄是10~20 且 name 不是guozheng  也不是 zhangsan
+gender:(男) AND age:[10 TO 20] NOT name:(guozheng OR zhangsan)
+```
+
+> query string与 DSL可以一起使用。参考：https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html
 
 ## es的与或非运算  
 <img src="../../imgs/es的与或非.png">
