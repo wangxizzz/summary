@@ -93,3 +93,13 @@ https://www.elastic.co/guide/en/elasticsearch/client/java-api/current/_structuri
 
 ## ES的深分页问题：
 
+(1) scroll的size最佳设置大小？
+
+(2)
+
+## 关于ES的数据更新：
+Es本身其实并不支持删除与update，底层只是把旧的数据不可见，查询时默认返回最新值了而且这个步骤是非常耗损es性能。因此我们如果需要对es已存在数据根据主键或唯一标识字段更新时，可以采用:
+在数据插入时在db保存一个version字段，每次插入更新把最新的version字段更新到es对应的列，查询时根据最新的version即可查询出最新的数据。
+
+
+
