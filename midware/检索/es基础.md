@@ -6,6 +6,10 @@
 2.**后台启动：**
 > ./bin/elasticsearch -d 
 
+3.**kibana启动：**
+> 进入kibana目录  ./kibana  即可
+访问地址：http://localhost:5601
+
 3.**es ik分词器相关**
 - 安装：
     - 进入bin目录，输入命令（可以上github上看版本,版本需要和es对应）安装完毕，es需要重启，否则是不生效的：elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.4.0/elasticsearch-analysis-ik-7.4.0.zip
@@ -38,17 +42,12 @@ Elasticsearch -> Indices   -> Types  -> Documents -> Fields
 
 因为这些原因，我们决定从Elasticsearch中移除类型的概念。
 
-## 关于es的原理与数据迁移mysql:
-https://www.jianshu.com/p/56e755415e63
 
 ## **elasticsearch Mapping、字段类型Field type详解:**  
 <a href="./es字段类型与mapping介绍.md">es字段类型与mapping介绍</a>
 
 ## 基本命令相关
 <a href="./es基本命令相关.md">es基本命令相关</a>
-
-## es整合springdata API相关
-<a href="./es整合api相关.md">es整合api相关</a>
 
 
 
