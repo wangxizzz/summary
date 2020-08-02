@@ -7,6 +7,18 @@ nick_name varchar(20) not null comment '昵称',
 update_time datetime not null ```default CURRENT_TIMESTAMP``` comment '数据最后更新时间'  
 )ENGINE = InnoDB DEFAULT CHARSET = utf8 COMMENT '用户信息表';  
 
+CREATE TABLE demo_order (
+  id bigint(20) NOT NULL AUTO_INCREMENT COMMENT '自增id',
+  price decimal(10,2) not null ,
+  order_no varchar(255) not null ,
+  book_id bigint(20) not null ,
+  create_time datetime not null,
+  update_time datetime not null,
+  PRIMARY KEY (id)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+
+**注意：字段名称不要加''单引号，否则会报错。如果加引号，那么加 ``这个符号**
+
 **插入数据：insert into t_user(username, password, nick_name) values('wangxi', '12345', 'xier')**   
 ```如果直接不写列名的话，就是全列匹配，就无法用到自增与时间戳的默认生成了。```
 
@@ -126,7 +138,35 @@ select * from bugs where ass_to is not NULL;
 7、select id,name from table_a where dt < now();  
 > 这条语句如果时间周期比较短，那扫描的行数不多，如果有十几年了，那就需要指定一个时间范围(利用between and)，否则扫描的行数多个，影响性能.  
 
-8、Mac下的mysql:
+# Mac下安装mysql5.7
+## 安装步骤如下：
+- 版本下载 5.7.28 网址： https://downloads.mysql.com/archives/community/  ， 其他版本安装起来会有问题。
+- mysql界面安装完毕之后，最后一步会告诉你 临时登录 mysql的密码，**需要记录到文本上**，因为第一次只能使用临时密码登录。必须先记录，否则后续很难找！
+
+  <img src="../../imgs/mysql密码.jpg" height=200px width=400px>
+- mysql环境变量配置：https://www.jianshu.com/p/4d6a171df3d0
+
+- 安装完毕之后，看下设置里mysql是否running状态
+- mysql -u root -p 然后输入临时密码
+    - 如果输入密码不行展示 权限拒绝，那么重启电脑，然后重复上一步再输入临时密码。
+- 登录进入后，设置新密码：SET PASSWORD FOR 'root'@'localhost' = PASSWORD('123456');
+
+- mysql卸载方式命令：
+```bash
+sudo rm /usr/local/mysql  
+sudo rm -rf /usr/local/mysql*  
+sudo rm -rf /Library/StartupItems/MySQLCOM  
+sudo rm -rf /Library/PreferencePanes/My* 
+vim /etc/hostconfig  (and removed the line MYSQLCOM=-YES-)  
+rm -rf ~/Library/PreferencePanes/My*  
+sudo rm -rf /Library/Receipts/mysql*  
+sudo rm -rf /Library/Receipts/MySQL*  
+sudo rm -rf /var/db/receipts/com.mysql.* 
+```
+- 跳过密码权限验证参考：https://www.cnblogs.com/xuyin/p/12113964.html
+    - 不一定可行。
+
+## Mac下的mysql:
 -  ./mysql -u root -p
 - 密码：123456  用户: root
 - 查看MySQL默认端口号(需要登录mysql)：show global variables like 'port';
