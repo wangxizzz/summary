@@ -7,6 +7,18 @@ nick_name varchar(20) not null comment '昵称',
 update_time datetime not null ```default CURRENT_TIMESTAMP``` comment '数据最后更新时间'  
 )ENGINE = InnoDB DEFAULT CHARSET = utf8 COMMENT '用户信息表';  
 
+CREATE TABLE demo_order (
+  id bigint(20) NOT NULL AUTO_INCREMENT COMMENT '自增id',
+  price decimal(10,2) not null ,
+  order_no varchar(255) not null ,
+  book_id bigint(20) not null ,
+  create_time datetime not null,
+  update_time datetime not null,
+  PRIMARY KEY (id)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+
+**注意：字段名称不要加''单引号，否则会报错。如果加引号，那么加 ``这个符号**
+
 **插入数据：insert into t_user(username, password, nick_name) values('wangxi', '12345', 'xier')**   
 ```如果直接不写列名的话，就是全列匹配，就无法用到自增与时间戳的默认生成了。```
 
