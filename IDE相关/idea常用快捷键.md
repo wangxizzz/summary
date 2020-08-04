@@ -2,14 +2,15 @@
 
 需要把 idea的 keymap调整为 macOS15+以上的键位
 
-1、command + F12 查看一个类的所有字段与方法。
-2、control + option + o 格式化imports
-3、shift command 回车  格式化代码，末尾加分号
-4、control 回车 调出方法实现（类的上下文菜单）
-5、command + F12 跳出类方法
-6、搜文件 shift command o
-7、搜类  command o
-8、shift F6 可以联动修改某一属性的名字。
+1、command + F12 查看一个类的所有字段与方法。  
+2、control + option + o 格式化imports  
+3、shift command 回车  格式化代码，末尾加分号  
+4、control 回车 调出方法实现（类的上下文菜单）  
+5、command + F12 跳出类方法  
+6、搜文件 shift command o  
+7、搜类  command o  
+8、shift F6 可以联动修改某一属性的名字。  
+
 
 
 
