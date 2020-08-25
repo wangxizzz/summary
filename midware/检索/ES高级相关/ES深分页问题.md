@@ -1,5 +1,5 @@
 # ES的深分页问题：
-- https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-body.html#request-body-search-scroll
+- 官网： https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-body.html#request-body-search-scroll
 
 # 深度分页问题大致可以分为两类
 - 随机深度分页：随机跳转页面
@@ -186,3 +186,26 @@ search_after使用方式上跟scroll很像，但是相对于scroll它是无状�
 ### 使用注意：
 注意：当我们使用search_after时，from值必须设置为0或者-1。  
 search_after缺点是不能够随机跳转分页，只能是一页一页的向后翻，并且需要至少指定一个唯一不重复字段来排序。它与滚动API非常相似，但与它不同，search_after参数是无状态的，它始终针对最新版本的搜索器进行解析。因此，排序顺序可能会在步行期间发生变化，具体取决于索引的更新和删除。
+
+## Redis的分页：
+在redis中可以使用Sorted Set来实现。具体的分页命令是 ZREVRANGEBYSCORE：
+```bash
+ZREVRANGEBYSCORE key max min [WITHSCORES] [LIMIT offset count]
+
+返回有序集 key 中， score 值介于 max 和 min 之间(默认包括等于 max 或 min )的所有的成员。有序集成员按 score 值递减(从大到小)的次序排列。
+
+具有相同 score 值的成员按字典序的逆序(reverse lexicographical order )排列。
+
+除了成员按 score 值递减的次序排列这一点外， ZREVRANGEBYSCORE 命令的其他方面和 ZRANGEBYSCORE 命令一样。
+
+可用版本：
+>= 2.2.0
+时间复杂度:
+O(log(N)+M)， N 为有序集的基数， M 为结果集的基数。
+返回值:
+指定区间内，带有 score 值(可选)的有序集成员的列表。
+```
+
+## 参考
+- http://arganzheng.life/deep-pagination-in-elasticsearch.html
+- ES嵌套属性查询：http://arganzheng.life/elasticsearch-nested-object-indexing-and-searching.html
