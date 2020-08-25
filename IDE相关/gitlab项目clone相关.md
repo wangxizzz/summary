@@ -1,0 +1,1 @@
+1、clone gitlab的工程，如果没配置ssh key，那么使用http链接，clone下来即可。
