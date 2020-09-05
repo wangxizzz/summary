@@ -17,6 +17,7 @@ Changes to be committed: 表示需要commit
 **git clone https://github.com/wangxizzz/gitdemo test**  
 - 把远程gitdemo仓库克隆下来，并且改名字为test(默认文件夹名字为gitdemo)。
 - 初次克隆某个仓库的时候， 工作目录中的所有文件都属于已跟踪文件， 并处于未修改状态。
+- git clone -b <指定分支名> <远程仓库地址>    clone特定的分支
 
 **如果需要clone远程aa分支到本地：**
 - git checkout -b aa
