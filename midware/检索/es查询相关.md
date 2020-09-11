@@ -39,3 +39,7 @@ gender:(男) AND age:[10 TO 20] NOT name:(guozheng OR zhangsan)
 
 ## es查询案例
 <img src="../../imgs/es查询案例.png">
+
+## ES嵌套索引建立：
+https://blog.csdn.net/dufufd/article/details/88578312
+
