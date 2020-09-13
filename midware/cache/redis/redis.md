@@ -1,11 +1,11 @@
-## redis：
+# redis：
 
 参考网址：  
 http://www.runoob.com/redis/redis-keys.html 这个上面介绍的命令链接可以点击获取详细操作演示。
 
 - 官方中文文档：http://redisdoc.com/hash/index.html
 
-1.**常用命令：**
+## 常用命令
 - **string**:
     - set name wangxi  
         - key为name,value为wangxi
