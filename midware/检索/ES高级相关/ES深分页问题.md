@@ -124,7 +124,7 @@ scroll特别适合做全表扫描，ES的reindex接口内部就是使用scroll�
 1. 为了避免过度使得我们的cluster繁忙，通常Scroll接口被推荐作为深层次的scrolling，但是因为维护scroll上下文也是非常昂贵的。每生成下一个scrollId需要 2~ 3 秒
 2. scroll的查询时间是稳定的，基于原始的快照，因此数据不是最新的，所以这种方法不推荐作为实时用户请求
 3. scroll不能单页返回，只能在一次方法调用 分页获取所有的数据。当然你可以在一页数据查询到内存，然后处理，释放掉内存。
-
+4. 因scroll方式给第三方系统提供分页查询时，当一次scroll完成之后返回，scroll快照被删除，再次使用过期的scrollId 查询时  会生成新的scrollId，如果调用方不去检查scroll是否完毕，会出现不断创建scroll快照的问题。
 ## Search After
 
 Scroll API相对于from+size方式当然是性能好很多，但是也有如下问题：  
