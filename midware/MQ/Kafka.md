@@ -54,26 +54,39 @@ OSR 集合为空。
 
 HDD传统机械硬盘。SSD固态硬盘。
 
-3.**kafka常见配置介绍：**
+# kafka常见配置介绍：
+## broker端：
 - log.dirs: 
     - Kafka 把所有消息都保存在磁盘上，存放这些日志片段的目录是通过 log.dirs指定的.
 - zk的chroot: 
     - chroot是一个zk的namespace
-- **生产端配置：**
-    - buffer.memory:
-        - RecordAccumulator的缓存大小，producer端批量发送的缓冲区
-    - acks:
-        - 这个参数用来指定分区中必须要有多少个副本收到这条消息，之后生产者才会认为这条消
-息是成功写入的。
-    - 
-- **消费端配置：**
-    - enable.auto.commit:
-        - 自动提交偏移量，默认为true. 这个逻辑是在poll()方法完成
-    - auto.offset.reset:
-        - 在 Kafka 中 每当消费者查找不到所记录的消费位移 时， 默认是latest,表示最近提交的偏移量的下一个开始。还有值为earliest,表示从该分区0开始消费。
-        - 在位移越界也会触发参数运行
-        - 如果配置为none，那么在发生上述两种情况就会抛出ConfigException
-    - 
+## 生产端重要参数配置：
+- buffer.memory:
+    - RecordAccumulator的缓存大小，producer端批量发送的缓冲区。Kafka的客户端发送数据到服务器，不是来一条就发一条，而是经过缓冲的，也就是说，通过KafkaProducer发送出去的消息都是先进入到客户端本地的内存缓冲里，然后把很多消息收集成一个一个的Batch，再发送到Broker上去的，这样性能才可能高。```此参数是以batch为维度进行累加。``` buffer.memory的本质就是用来约束KafkaProducer能够使用的内存缓冲的大小的，默认值32MB。如果buffer.memory设置的太小，可能导致的问题是：消息快速的写入内存缓冲里，但Sender线程来不及把Request发送到Kafka服务器，会造成内存缓冲很快就被写满。而一旦被写满，就会阻塞用户线程，不让继续往Kafka写消息了。
+- batch.size
+    - 每个Batch要存放batch.size大小的数据后，才可以发送出去。比如说batch.size默认值是16KB，那么里面凑够16KB的数据才会发送。```以ProducerRecord为维度进行累加。```理论上来说，提升batch.size的大小，可以允许更多的数据缓冲在里面，那么一次Request发送出去的数据量就更多了，这样吞吐量可能会有所提升。但是batch.size也不能过大，要是数据老是缓冲在Batch里迟迟不发送出去，那么发送消息的延迟就会很高。一般可以尝试把这个参数调节大些，利用生产环境发消息负载测试一下。
+- linger.ms
+    - 一个Batch被创建之后，最多过多久，不管这个Batch有没有写满，都必须发送出去了。比如说batch.size是16KB，但是现在某个低峰时间段，发送消息量很小。这会导致可能Batch被创建之后，有消息进来，但是迟迟无法凑够16KB，难道此时就一直等着吗？当然不是，假设设置“linger.ms”是50ms，那么只要这个Batch从创建开始到现在已经过了50ms了，哪怕他还没满16KB，也会被发送出去。 
+　　所以“linger.ms”决定了消息一旦写入一个Batch，最多等待这么多时间，他一定会跟着Batch一起发送出去。 
+　　linger.ms配合batch.size一起来设置，可避免一个Batch迟迟凑不满，导致消息一直积压在内存里发送不出去的情况。
+- max.request.size
+    - 决定了每次发送给Kafka服务器请求消息的最大大小。如果发送的消息都是大报文消息，每条消息都是数据较大，例如一条消息可能要20KB。此时batch.size需要调大些，比如设置512KB，buffer.memory也需要调大些，比如设置128MB。 只有这样，才能在大消息的场景下，还能使用Batch打包多条消息的机制。此时“batch.size”也得同步增加。
+- retries和retries.backoff.ms
+    - 重试机制，也就是如果一个请求失败了可以重试几次，每次重试的间隔是多少毫秒，根据业务场景需要设置。
+- acks:
+    - "0"： Producer 往集群发送数据不需要等到集群的返回，不确保消息发送成功。安全性最低但是效率最高。
+    - "1": Producer 往集群发送数据只要 Leader 应答就可以发送下一条，只确保 Leader 接收成功。
+    - "-1"或"all" : Producer 往集群发送数据需要所有的```ISR Follower ```都完成从 Leader 的同步才会发送下一条，确保 Leader 发送成功和所有的副本都成功接收。安全性最高，但是效率最低。
+- 
+## 消费端重要参数配置：
+- enable.auto.commit:
+    - 自动提交偏移量，默认为true. 这个逻辑是在poll()方法完成
+- auto.offset.reset:
+    - earliest：当服务器上各分区下有已提交的offset时，从提交的offset开始消费；无提交的offset时，从头开始消费。
+    - latest： 当各分区下有已提交的offset时，从提交的offset开始消费；无提交的offset时，消费新产生的该分区下的数据
+    - 如果配置为none，那么在发生上述两种情况就会抛出ConfigException
+    - 默认建议用earliest。设置该参数后 kafka出错后重启，找到未消费的offset可以继续消费(此时应该是整个消费者集群挂了)。而latest 这个设置容易丢失消息，假如kafka出现问题，还有数据往topic中写，这个时候重启kafka，这个设置会从最新的offset开始消费,中间出问题的哪些就不管了。 
+- 
 
 4.**分析kafka源码知道**：
 - 在```ProducerConfig```里面有很多producer端想要的配置信息，比如partitioner,interceptor
