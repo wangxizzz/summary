@@ -1,4 +1,4 @@
-1.**基本概念与原理介绍：**
+# 基本概念与原理介绍
 - producer端发送消息已topic进行归类，构造ProducerRecord时需要指定topic参数，每个topic又有很多分区(可配置)，每个分区本质是可追加的log文件，因此kafka保证消息在单分区的顺序性，但不能保证topic的顺序性。众多分区有一个首领分区，负责读写，其他事follower分区，负责同步首领分区的数据，不对外读写操作。
 - kafka是基于pull的方式，consumer端去拉broker端的消息。
 - consumer端维护读消息的偏移量，不由broker维护，由zookeeper的元数据维护。
@@ -158,7 +158,6 @@ zookeeper.connect=localhost:2181/kafka
 - 时间戳索引文件中包含若干时间戳索引项，每个追加的时间戳索引项中的 timestamp 必须大于之前追加的索引项的timestamp，否则不予追加。
 - Kafka 将消息存储在磁盘中，为了控制磁盘占用空间的不断增加就需要对消息做一定的清理操作。Kafka 中每一个分区副本都对应一个 Log，而 Log 又可以分为多个日志分段，这样也便于日志的清理操作。Kafka提供了两种日志清理策略：
     - （1）日志删除（Log Retention）：按照一定的保留策略直接删除不符合条件的日志分段
-        - 
     - （2）日志压缩（Log Compaction）：针对每个消息的key进行整合，对于有相同key的不同value值，只保留最后一个版本(类似于redis aof重写机制)。
 ## kafka日志存储 & 高性能原因：
 ## 顺序追加：
