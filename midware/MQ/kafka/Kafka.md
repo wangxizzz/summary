@@ -82,11 +82,14 @@ HDD传统机械硬盘。SSD固态硬盘。
 - enable.auto.commit:
     - 自动提交偏移量，默认为true. 这个逻辑是在poll()方法完成
 - auto.offset.reset:
-    - earliest：当服务器上各分区下有已提交的offset时，从提交的offset开始消费；无提交的offset时，从头开始消费。
-    - latest： 当各分区下有已提交的offset时，从提交的offset开始消费；无提交的offset时，消费新产生的该分区下的数据
-    - 如果配置为none，那么在发生上述两种情况就会抛出ConfigException
-    - 默认建议用earliest。设置该参数后 kafka出错后重启，找到未消费的offset可以继续消费(此时应该是整个消费者集群挂了)。而latest 这个设置容易丢失消息，假如kafka出现问题，还有数据往topic中写，这个时候重启kafka，这个设置会从最新的offset开始消费,中间出问题的哪些就不管了。 
-- 
+    - 以下是经过真实场景测试的
+    - **重启之前挂掉的consumer, 意思是重启后consumer group不变**
+        - earliest：当服务器上toipc的该consumer group该分区下有已提交的offset时，从提交的offset开始消费；无提交的offset时，从头开始消费。
+        - latest： 当toipc的consumer group该分区下有已提交的offset时，从提交的offset开始消费；无提交的offset时，消费新产生的该分区下的数据
+        - 如果配置为none，那么在发生上述两种情况就会抛出ConfigException，默认为latest 
+    - **如果新加入一个consumer group或者重启后consumer group变了**
+        - earliest：从该topic的offset=0开始消费
+        - latest: 从该topic producer端产生的最新的offset开始消费，意思表示中间那段消息就不管了
 
 4.**分析kafka源码知道**：
 - 在```ProducerConfig```里面有很多producer端想要的配置信息，比如partitioner,interceptor
