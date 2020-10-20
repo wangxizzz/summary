@@ -1,4 +1,4 @@
-# 1、单表mysql深分页问题：
+# 单表mysql深分页问题：
 假如表中数据有500w
 ```sql
 select * from orders_history where type=8 limit 100,100;
