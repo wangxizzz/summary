@@ -56,3 +56,8 @@ PS：**dependency : analyze只会分析编译主代码和测试代码需要用�
 
 
 **mvn dependency:resolve -Dclassifier=sources.解决idea中无法下载源码的问题**
+
+# maven高级命令相关
+- mvn clean package -Dmaven.test.skip=true -Pfast
+    - -P参数指定了快速编译，如果需要全量编译，则-P参数值为full
+- 
