@@ -215,3 +215,5 @@ ch.pipeline()//.addLast("logging",new LoggingHandler(LogLevel.INFO))//for debug
             .addLast("client-idle-handler", new IdleStateHandler(heartbeatInterval, 0, 0, MILLISECONDS))
             .addLast("handler", nettyClientHandler);
 ```
+
+https://blog.csdn.net/weixin_38308374/article/details/106736714
