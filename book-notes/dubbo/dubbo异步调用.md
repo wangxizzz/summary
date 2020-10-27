@@ -42,7 +42,7 @@ protected Result doInvoke(final Invocation invocation) throws Throwable {
     final String methodName = RpcUtils.getMethodName(invocation);
     inv.setAttachment(PATH_KEY, getUrl().getPath());
     inv.setAttachment(VERSION_KEY, version);
-    // ExchangeClient是什么？clients 是什么？
+    // clients是ExchangeClient数组，ExchangeClient本质是 NettyClient，而且clients的length大部分为1(即使一台机器起多个consumer端，length也是1)
     ExchangeClient currentClient;
     if (clients.length == 1) {
         currentClient = clients[0];
