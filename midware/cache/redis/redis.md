@@ -75,7 +75,7 @@ http://www.runoob.com/redis/redis-keys.html 这个上面介绍的命令链接可
 - expire 设置key过期时间 单位为s
 - ttl + key: 可以查看key还剩多长时间过期
 - persist + key:可以删掉key的过期时间，变为永久不过期
-- 
+-  memory info 可以查看redis的内存占用情况
 
 5.**redis的回收策略：**
 - 首先redis有个最大内存配置，当到达一定容量时(快接近maxmemory时)，就会触发内存淘汰策略.
