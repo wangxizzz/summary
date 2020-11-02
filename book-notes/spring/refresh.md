@@ -65,7 +65,7 @@ public void refresh() throws BeansException, IllegalStateException {
             finishBeanFactoryInitialization(beanFactory);
 
             // Last step: publish corresponding event.
-            // 最后一步，发送广播事件，保证对应的监听器可以做进一步的逻辑处理
+            // 最后一步，发送广播事件，保证对应的监听器可以做进一步的逻辑处理(此时bean全部实例化完成)
             finishRefresh();
         }
         ....
