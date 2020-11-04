@@ -254,7 +254,7 @@ public CompletableFuture<Object> reply(ExchangeChannel channel, Object message) 
     // 真正执行provider调用
     // org.apache.dubbo.rpc.proxy.AbstractProxyInvoker#invoke
     Result result = invoker.invoke(inv);
-    // thenApply为Future get结果时的回调函数
+    // thenApply为Future get结果时的回调函数, thenApply为异步执行，不阻塞当前线程
     return result.thenApply(Function.identity());
 }
 
