@@ -76,6 +76,13 @@ http://www.runoob.com/redis/redis-keys.html 这个上面介绍的命令链接可
 - ttl + key: 可以查看key还剩多长时间过期
 - persist + key:可以删掉key的过期时间，变为永久不过期
 -  memory info 可以查看redis的内存占用情况
+- 查看慢查询日志
+    - CONFIG  SET  slowlog-log-slower-than  num   （可以更改配置文件此属性，或者在命令行执行此命令）
+        - 设置超过多少微妙的查询为慢查询，并且将这些慢查询加入到日志文件中，num的单位为毫秒，windows下redis的默认慢查询时10000微妙即10毫秒。
+    - CONFIG  SET  slowlog-max-len  num
+        - 可以通过设置最大数量限制日志中保存的慢查询日志的数量，windows下redis默认慢查询日志的记录数量为128条
+    - ```SLOWLOG GET```
+        - ```查看慢查询命令```
 
 5.**redis的回收策略：**
 - 首先redis有个最大内存配置，当到达一定容量时(快接近maxmemory时)，就会触发内存淘汰策略.
