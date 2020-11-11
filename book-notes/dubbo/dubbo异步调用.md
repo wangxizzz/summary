@@ -111,7 +111,7 @@ public static DefaultFuture newFuture(Channel channel, Request request, int time
     if (executor instanceof ThreadlessExecutor) {
         ((ThreadlessExecutor) executor).setWaitingFuture(future);
     }
-    // timeout check
+    // dubbo框架中 方法调用的超时处理。下面分析
     timeoutCheck(future);
     return future;
 }
@@ -217,6 +217,7 @@ void handleRequest(final ExchangeChannel channel, Request req) throws RemotingEx
         future.whenComplete((appResult, t) -> {
             try {
                 if (t == null) {
+                    // 设置 response的状态为 OK
                     res.setStatus(Response.OK);
                     res.setResult(appResult);
                 } else {
