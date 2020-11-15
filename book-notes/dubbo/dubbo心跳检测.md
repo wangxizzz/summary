@@ -390,4 +390,4 @@ public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exc
 而客户端则不同，客户端想尽全力保证连接的可用，因为客户端访问服务时最希望的是尽快得到响应，因此客户端最好是时时刻刻保持连接的可用，这样访问服务时可以省去建立连接的时间消耗。  
 另外一点也要主要，服务端和客户端启动定时任务的时间是不同的，默认服务端是3分钟，客户端是1分钟，dubbo要求服务端定时任务的启动时间间隔最小是客户端的2倍。  
 
-参考：http://dubbo.apache.org/zh-cn/blog/dubbo-heartbeat-design.html  有的可能过时了
+参考：https://dubbo.apache.org/zh-cn/blog/dubbo-heartbeat-design/  有的可能过时了

@@ -212,7 +212,7 @@ void handleRequest(final ExchangeChannel channel, Request req) throws RemotingEx
     // find handler by message class.
     Object msg = req.getData();
     try {
-        // provider端异步执行
+        // handler.reply 不是异步执行的，只是返回了一个Future
         CompletionStage<Object> future = handler.reply(channel, msg);
         future.whenComplete((appResult, t) -> {
             try {
@@ -233,9 +233,11 @@ void handleRequest(final ExchangeChannel channel, Request req) throws RemotingEx
     }
 }
 
-// 跟进reply方法
+// 跟进reply方法，此方法并没有提交线程池执行。是同步执行的
 // org.apache.dubbo.remoting.exchange.support.ExchangeHandlerAdapter#reply
 public CompletableFuture<Object> reply(ExchangeChannel channel, Object message) throws RemotingException {
+    // 此方法并没有提交线程池执行。是同步执行的
+
     if (!(message instanceof Invocation)) {
         throw new RemotingException(channel, "Unsupported request: "
                 + (message == null ? null : (message.getClass().getName() + ": " + message))
@@ -252,7 +254,7 @@ public CompletableFuture<Object> reply(ExchangeChannel channel, Object message) 
     }
     
     RpcContext.getContext().setRemoteAddress(channel.getRemoteAddress());
-    // 真正执行provider调用
+    // 真正执行provider调用，这个方法是同步执行。org.apache.dubbo.rpc.proxy.AbstractProxyInvoker#doInvoke是同步还是异步，取决于provider端的业务方法是同步还是异步。
     // org.apache.dubbo.rpc.proxy.AbstractProxyInvoker#invoke
     Result result = invoker.invoke(inv);
     // thenApply为Future get结果时的回调函数, thenApply为异步执行，不阻塞当前线程
@@ -381,3 +383,73 @@ private void doReceived(Response res) {
     }
 }
 ```
+
+# 具体方法调用分析
+## 同步调用
+```java
+// provider端业务实现
+public String sayHello(String name) {
+    try {
+        Thread.sleep(10000);
+    } catch (InterruptedException e) {
+        e.printStackTrace();
+    }
+    logger.info("Hello 234" + name + ", request from consumer: " + RpcContext.getContext().getRemoteAddress());
+    return "Hello " + name + ", response from provider: " + RpcContext.getContext().getLocalAddress();
+}
+```
+上述方法在consumer的main方法调用时间为：
+```
+同步调用开始.....
+result1: Hello 我是参数1, response from provider: 192.168.1.102:20881
+调用结束 time = 10250 
+```
+## consumer阻塞分析
+```java
+consumer端在调用 org.apache.dubbo.rpc.protocol.AbstractInvoker#invoke 时，很快就结束了，依赖的是返回CompletableFuture与netty的异步非阻塞，很快就释放掉了 consumer端的业务主线程。
+
+// 阻塞点在这
+// org.apache.dubbo.rpc.protocol.AsyncToSyncInvoker#invoke
+public Result invoke(Invocation invocation) throws RpcException {
+    Result asyncResult = invoker.invoke(invocation);
+
+    try {
+        // 如果是同步模式
+        if (InvokeMode.SYNC == ((RpcInvocation) invocation).getInvokeMode()) {
+            // 阻塞等待。不会一直等待，因为consumer端有超时检测机制。
+            asyncResult.get(Integer.MAX_VALUE, TimeUnit.MILLISECONDS);
+        }
+        ....
+    }
+    ...
+}
+```
+## provider阻塞分析
+```java
+// provider肯定是阻塞的，因为它必须要调用 业务方法。
+会在 org.apache.dubbo.rpc.proxy.AbstractProxyInvoker#invoke 方法阻塞等待。
+```
+
+## 异步调用
+```java
+// provider端业务实现
+public CompletableFuture<String> sayHelloAsync(String name) {
+    System.out.println("进入sayHelloAsync.....");
+    return CompletableFuture.supplyAsync(() -> {
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return "1";
+    });
+}
+```
+上述方法在consumer的main方法调用时间为：
+```
+异步调用开始.....
+异步调用结束.....
+result1: org.apache.dubbo.rpc.protocol.dubbo.FutureAdapter@327120c8[Not completed]
+调用结束 time = 64
+```
+```业务方法本身异步调用，dubbo无阻塞点。```
