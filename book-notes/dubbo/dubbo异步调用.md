@@ -1,6 +1,8 @@
 # 原理
 Dubbo的服务消费端基于CompletableFuture实现了纯异步调用，其实还不单单CompletableFuture的功劳，归根到底是Netty的NIO非阻塞功能提供的底层实现。
 
+注意：dubbo框架本身就是异步的。
+
 # 消费方 发起请求
 ```java
 // org.apache.dubbo.rpc.protocol.AbstractInvoker#invoke
