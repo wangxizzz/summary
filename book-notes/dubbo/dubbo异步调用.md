@@ -224,7 +224,7 @@ void handleRequest(final ExchangeChannel channel, Request req) throws RemotingEx
                     res.setStatus(Response.SERVICE_ERROR);
                     res.setErrorMessage(StringUtils.toString(t));
                 }
-                // 当provider端执行结束，发送到channel到consumer端
+                // 当provider端执行结束，发送到channel到consumer端。返回的是真正的执行结果
                 channel.send(res);
             } catch (RemotingException e) {
                 logger.warn("Send result to consumer failed, channel is " + channel + ", msg is " + e);
@@ -406,13 +406,17 @@ result1: Hello 我是参数1, response from provider: 192.168.1.102:20881
 ```
 ## consumer阻塞分析
 ```java
+
+注意：先执行 AsyncToSyncInvoker ，然后在AsyncToSyncInvoker方法内执行AbstractInvoker
+
 consumer端在调用 org.apache.dubbo.rpc.protocol.AbstractInvoker#invoke 时，很快就结束了，依赖的是返回CompletableFuture与netty的异步非阻塞，很快就释放掉了 consumer端的业务主线程。
 
 // 阻塞点在这
 // org.apache.dubbo.rpc.protocol.AsyncToSyncInvoker#invoke
 public Result invoke(Invocation invocation) throws RpcException {
+    // 执行 org.apache.dubbo.rpc.protocol.AbstractInvoker#invoke
     Result asyncResult = invoker.invoke(invocation);
-
+    // asyncResult 即为consuemr端异步返回的结果
     try {
         // 如果是同步模式
         if (InvokeMode.SYNC == ((RpcInvocation) invocation).getInvokeMode()) {

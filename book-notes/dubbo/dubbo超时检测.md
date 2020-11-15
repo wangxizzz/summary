@@ -125,6 +125,8 @@ private void doReceived(Response res) {
 
 // 上述在response设置了超时状态，那么怎么样触发超时异常的呢？
 
+注意：先执行 AsyncToSyncInvoker ，然后在AsyncToSyncInvoker方法内执行AbstractInvoker
+
 //org.apache.dubbo.rpc.protocol.AsyncToSyncInvoker#invoke
 public Result invoke(Invocation invocation) throws RpcException {
     Result asyncResult = invoker.invoke(invocation);
@@ -139,9 +141,10 @@ public Result invoke(Invocation invocation) throws RpcException {
         throw new RpcException("Interrupted unexpectedly while waiting for remote result to return!  method: " +
                 invocation.getMethodName() + ", provider: " + getUrl() + ", cause: " + e.getMessage(), e);
     } catch (ExecutionException e) {
-        // 最终会在
+        // 最终会在这里捕获超时异常
         Throwable t = e.getCause();
         if (t instanceof TimeoutException) {
+            // 如果方法调用超时了，可以搜到这行日志
             throw new RpcException(RpcException.TIMEOUT_EXCEPTION, "Invoke remote method timeout. method: " +
                     invocation.getMethodName() + ", provider: " + getUrl() + ", cause: " + e.getMessage(), e);
         } else if (t instanceof RemotingException) {
@@ -189,50 +192,6 @@ private static <T> T reportGet(Object r)
     }
     @SuppressWarnings("unchecked") T t = (T) r;
     return t;
-}
-```
-# 上层捕获超时异常源码
-
-上面分析到抛出 throw new ExecutionException，因为是在consuemr超时检测，因此会被consumer的上层调用方捕获
-```java
-// org.apache.dubbo.rpc.protocol.dubbo.DubboInvoker#doInvoke
-@Override
-protected Result doInvoke(final Invocation invocation) throws Throwable {
-    RpcInvocation inv = (RpcInvocation) invocation;
-    final String methodName = RpcUtils.getMethodName(invocation);
-    inv.setAttachment(PATH_KEY, getUrl().getPath());
-    inv.setAttachment(VERSION_KEY, version);
-
-    ExchangeClient currentClient;
-    if (clients.length == 1) {
-        currentClient = clients[0];
-    } else {
-        currentClient = clients[index.getAndIncrement() % clients.length];
-    }
-    try {
-        boolean isOneway = RpcUtils.isOneway(getUrl(), invocation);
-        int timeout = calculateTimeout(invocation, methodName);
-        if (isOneway) {
-            boolean isSent = getUrl().getMethodParameter(methodName, Constants.SENT_KEY, false);
-            currentClient.send(inv, isSent);
-            return AsyncRpcResult.newDefaultAsyncResult(invocation);
-        } else {
-            ExecutorService executor = getCallbackExecutor(getUrl(), inv);
-            // consumer端发起请求
-            CompletableFuture<AppResponse> appResponseFuture =
-                    currentClient.request(inv, timeout, executor).thenApply(obj -> (AppResponse) obj);
-            
-            FutureContext.getContext().setCompatibleFuture(appResponseFuture);
-            AsyncRpcResult result = new AsyncRpcResult(appResponseFuture, inv);
-            result.setExecutor(executor);
-            return result;
-        }
-    } catch (TimeoutException e) {
-        // 捕获超时检测抛出的 TimeoutException。如果调用中发生了超时，可以搜到这行异常日志的。
-        throw new RpcException(RpcException.TIMEOUT_EXCEPTION, "Invoke remote method timeout. method: " + invocation.getMethodName() + ", provider: " + getUrl() + ", cause: " + e.getMessage(), e);
-    } catch (RemotingException e) {
-        throw new RpcException(RpcException.NETWORK_EXCEPTION, "Failed to invoke remote method: " + invocation.getMethodName() + ", provider: " + getUrl() + ", cause: " + e.getMessage(), e);
-    }
 }
 ```
 
