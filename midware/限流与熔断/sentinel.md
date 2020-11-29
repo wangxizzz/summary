@@ -7,3 +7,6 @@
 
 ```
 
+# 流量控制：
+https://www.fangzhipeng.com/springcloud/2019/08/20/ratelimit-guava-sentinel.html
+
