@@ -3,5 +3,7 @@
 到  https://github.com/alibaba/Sentinel/releases  下载jar
 启动命令：java -Dserver.port=8080 -Dcsp.sentinel.dashboard.server=localhost:8080 -Dproject.name=sentinel-dashboard -jar sentinel-dashboard-1.8.0.jar
 
+访问 localhost:8080  输入 账户密码：sentinel/sentinel 进入界面
+
 ```
 
