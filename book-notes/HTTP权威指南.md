@@ -1,7 +1,0 @@
-1.**响应首部字段：**
-- Connection:keep-alive.表示长连接。并且每次的响应都需要带上这个字段的值，否则的话，客户端就认为服务器不支持长连接，就会关闭连接。```HTTP1.0的说法。```，**在HTTP1.1默认就是长连接，除非特殊指明。把Connection设置为close.**
-- Keep-Alive: 设置长连接的属性(当然只有Connection:keep-alive才会生效)。
-    - timeout=120,max=5.前者是长连接持续的最大时间(非承诺值),后者是服务端保持长连接的最大数(非承诺值)。
-
-2.**TCP三次握手与四次挥手**
-https://blog.csdn.net/qq_38950316/article/details/81087809
