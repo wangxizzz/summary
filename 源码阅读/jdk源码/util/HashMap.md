@@ -1,6 +1,7 @@
 参考网址：https://itimetraveler.github.io/2017/11/25/%E3%80%90Java%E3%80%91HashMap%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88JDK1.8%EF%BC%89/#%E5%89%8D%E8%A8%80
 
 线程不安全：https://juejin.im/post/5cdbb578f265da035a1f41f4#heading-3
+源码解析：https://juejin.cn/post/6844903860603977736
 
 ConcurrentHashMap:https://www.jianshu.com/p/c0642afe03e0
 
