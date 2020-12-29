@@ -1,6 +1,9 @@
 ## 介绍：
 AQS全称是 AbstractQueuedSynchronizer （抽象队列同步器），是通过一个先进先出的队列（存储等待的线程）来实现同步器的一个框架是一个抽象类，是java.util.concurrent包下很多多线程工具类的实现基础。Lock、CountDownLatch、Semaphore等都是基于AQS实现的。AQS是一个FIFO的双向链表结构，其内部通过head、tail节点标识链表的首节点与尾结点，队列元素为Node类型，Node中的Thread变量是是用来存放到AQS队列里面的线程。
 
+## 注意：
+AQS作为底层线程同步框架，是不会实现子类特殊的逻辑的，比如公平锁与非公平锁的实现。如果要控制竞争锁的公平性，子类自己实现，比如ReentrantLock的tryAcquire方法。
+
 ## AQS的实现：
 AQS支持两种锁一种是独占锁（独占模式），一种是共享锁（共享模式）
 - 独占锁：比如像ReentrantLock就是一种独占锁模式，多个线程去同时抢一个锁，只有一个线程能抢到这个锁，其他线程就只能阻塞等待锁被释放后重新竞争锁。
