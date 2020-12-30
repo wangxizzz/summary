@@ -206,6 +206,12 @@ O(log(N)+M)， N 为有序集的基数， M 为结果集的基数。
 指定区间内，带有 score 值(可选)的有序集成员的列表。
 ```
 
+## ES的聚合分页查询
+https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-composite-aggregation.html#search-aggregations-bucket-composite-aggregation
+
+关键字搜索：composite-aggregation，after key
+
+
 ## 参考
 - http://arganzheng.life/deep-pagination-in-elasticsearch.html
 - ES嵌套属性查询：http://arganzheng.life/elasticsearch-nested-object-indexing-and-searching.html
