@@ -19,6 +19,7 @@ public class FastThreadLocalTest {
 ```
 
 ## 源码分析：
+参考：https://blog.csdn.net/lirenzuo/article/details/94495469
 ### 构造函数：
 ```java
 private final int index;
