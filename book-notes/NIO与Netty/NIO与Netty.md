@@ -132,6 +132,7 @@ sendfile(socket, file, len);
 - 简要理解：磁盘文件与内存建立映射，这块内存相对JVM来说，是堆外内存，Java程序直接操作堆外内存(Buffer中通过address逻辑地址)，就可以反映到操作文件。
 - 首先堆外内存，是针对于JVM而言的，也就是不在JVM管控之外的内存，我们称之为堆外内存。 而共享内存，是指内核态和用户态共享一块内存，也就是内核态虚拟地址和用户态虚拟地址指向了同一个物理内存地址。
 - 文件仍然是要读到内存中，只是说不是全部文件，相对于传统的IO,mmap少了把数据复制到进程缓冲区与复制回来的操作。
+- https://cloud.tencent.com/developer/article/1488088 重点参考
 - https://blog.csdn.net/Evankaka/article/details/48464013
 - https://blog.csdn.net/maverick1990/article/details/48050975
 - https://blog.csdn.net/mg0832058/article/details/5890688
