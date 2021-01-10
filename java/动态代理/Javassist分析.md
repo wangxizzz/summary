@@ -348,3 +348,14 @@ public class Protocol$Adaptive implements org.apache.dubbo.rpc.Protocol {
     }
 }
 ```
+
+javassist的第二种情况的调用：
+```java
+// 在生成AdaptiveExtension 时，会动态编译一个java脚本类，然后返回对应的class对象
+private Class<?> createAdaptiveExtensionClass() {
+        String code = new AdaptiveClassCodeGenerator(type, cachedDefaultName).generate();
+        ClassLoader classLoader = findClassLoader();
+        org.apache.dubbo.common.compiler.Compiler compiler = ExtensionLoader.getExtensionLoader(org.apache.dubbo.common.compiler.Compiler.class).getAdaptiveExtension();
+        return compiler.compile(code, classLoader);
+    }
+```
