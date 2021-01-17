@@ -30,3 +30,6 @@ select * from orders_history where type=2 and id > 10000 limit 100;
 **提升性能，本质是利用字段索引的查找，然后再查找其他字段。**
 
 **```局限性：如果是分库分表，那么无法使用上述方案。```**
+
+# MVCC的作用：
+https://cloud.tencent.com/developer/article/1746335
