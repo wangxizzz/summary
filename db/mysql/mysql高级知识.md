@@ -33,3 +33,4 @@ select * from orders_history where type=2 and id > 10000 limit 100;
 
 # MVCC的作用：
 https://cloud.tencent.com/developer/article/1746335
+https://www.jianshu.com/p/cef49aeff36b
