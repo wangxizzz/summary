@@ -27,7 +27,8 @@ select * from orders_history where type=2 and id > 10000 limit 100;
 
 这种方式需要依赖于提前把offset计算好，然后查询。
 
-**提升性能，本质是利用字段索引的查找，然后再查找其他字段。**
+**提升性能，本质是利用字段索引的查找，然后再查找其他字段。**  
+其他优化方案参考：https://cloud.tencent.com/developer/article/1666887
 
 **```局限性：如果是分库分表，那么无法使用上述方案。```**
 
