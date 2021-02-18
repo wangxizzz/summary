@@ -1,5 +1,6 @@
 # 心跳作用
 dubbo默认使用Netty作为通讯工具，Netty在消费端和服务端之间建立长连接。当建立长连接后，需要使用心跳机制判断双方是否在线。
+```通过心跳机制来维护长连接，保活```
 
 检测对方是否在线是长连接非常重要的一种机制。如果不检测，那么自身是无法感知对方掉线的，对方一旦掉线了，长连接也就断开了，双方通讯无法正常完成。有些检测机制是通过发送心跳报文完成，有些检测机制是通过发送业务请求时，顺带检测是否在线。
 
@@ -198,7 +199,8 @@ protected void doTask(Channel channel) {
 }
 ```
 
-# netty的心跳检测
+# Netty的心跳检测
+```dubbo默认使用netty的心跳机制```
 ```java
 // 首先，必须添加IdleStateHandler
 // org.apache.dubbo.remoting.transport.netty4.NettyServer 
@@ -208,12 +210,29 @@ ch.pipeline()
         .addLast("server-idle-handler", new IdleStateHandler(0, 0, idleTimeout, MILLISECONDS))
         .addLast("handler", nettyServerHandler);
 
+// cleint端的超时，发送心跳的时间设置
+public static int getHeartbeat(URL url) {
+    return url.getParameter(Constants.HEARTBEAT_KEY, Constants.DEFAULT_HEARTBEAT);
+}
+
 // org.apache.dubbo.remoting.transport.netty4.NettyClient
 ch.pipeline()//.addLast("logging",new LoggingHandler(LogLevel.INFO))//for debug
             .addLast("decoder", adapter.getDecoder())
             .addLast("encoder", adapter.getEncoder())
             .addLast("client-idle-handler", new IdleStateHandler(heartbeatInterval, 0, 0, MILLISECONDS))
             .addLast("handler", nettyClientHandler);
+
+// server端的超时，发送心跳的时间设置
+public static int getIdleTimeout(URL url) {
+    // 可以看出server的时间默认 是 client的 3倍
+    int heartBeat = getHeartbeat(url);
+    // idleTimeout should be at least more than twice heartBeat because possible retries of client.
+    int idleTimeout = url.getParameter(Constants.HEARTBEAT_TIMEOUT_KEY, heartBeat * 3);
+    if (idleTimeout < heartBeat * 2) {
+        throw new IllegalStateException("idleTimeout < heartbeatInterval * 2");
+    }
+    return idleTimeout;
+}
 ```
 ## IdleStateHandler 分析
 ```java
@@ -336,12 +355,16 @@ protected void channelIdle(ChannelHandlerContext ctx, IdleStateEvent evt) throws
 }
 ```
 
+```注意：保持长连接，是由client端发起的心跳 Request请求。因为client的IdleHandler设置的时间比server端小```
+
 NettyClientHandler/NettyServerHandler 对心跳事件做的处理：
 ```java
+// client 端
 // org.apache.dubbo.remoting.transport.netty4.NettyClientHandler#userEventTriggered
 @Override
 public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
     // send heartbeat when read idle.
+    // 收到client端自己的 IdleHandler的心跳事件，然后发送Request请求 到server端，以此来更新server端的channelReadTime，从而不会触发server端的IdleHandler的心跳超时任务，从而不会触发server端关闭channel的操作。
     if (evt instanceof IdleStateEvent) {
         try {
             NettyChannel channel = NettyChannel.getOrAddChannel(ctx.channel(), url, handler);
@@ -369,7 +392,7 @@ public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exc
 @Override
 public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
     // server will close channel when server don't receive any heartbeat from client util timeout.
-    // 当服务端收到client的心跳事件超时，就会关闭channel
+    // 当服务端收到server端自己的 IdleHandler发送的心跳事件，此时server端自己的 IdleHandler的channelReadTime一直没更新，此时server端就会认为client已经掉线了，就会关闭client端的channel。因为此时client端即没正常的请求，也没有心跳的Request请求，从而不会更新server的channelReadTime.
     if (evt instanceof IdleStateEvent) {
         NettyChannel channel = NettyChannel.getOrAddChannel(ctx.channel(), url, handler);
         try {
@@ -385,9 +408,13 @@ public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exc
 
 # 四、总结
 当服务端发生超时事件后，服务端会将对应的连接关闭。  
+
 当客户端发生超时事件后，客户端通过超时重连以及发送心跳尝试维持连接。  
+
 服务端和客户端对超时后作出的不同操作也反映了双方不同的策略。因为连接占用系统资源，服务端要尽可能的将资源留给其他请求，对于服务端来说，如果某个连接长时间没有数据传输，说明与该客户端的连接已经断开，或者客户端访问已经结束最近不需要再次访问，无论哪种情况，对于服务端来说最好的处理都是断开与客户端的连接。  
-而客户端则不同，客户端想尽全力保证连接的可用，因为客户端访问服务时最希望的是尽快得到响应，因此客户端最好是时时刻刻保持连接的可用，这样访问服务时可以省去建立连接的时间消耗。  
+
+```而客户端则不同，客户端想尽全力保证连接的可用，因为客户端访问服务时最希望的是尽快得到响应，因此客户端最好是时时刻刻保持连接的可用，这样访问服务时可以省去建立连接的时间消耗。  ```
+
 另外一点也要主要，服务端和客户端启动定时任务的时间是不同的，默认服务端是3分钟，客户端是1分钟，dubbo要求服务端定时任务的启动时间间隔最小是客户端的2倍。  
 
 参考：https://dubbo.apache.org/zh-cn/blog/dubbo-heartbeat-design/  有的可能过时了
