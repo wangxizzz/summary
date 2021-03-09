@@ -376,13 +376,20 @@ private Runnable getTask() {
             // 如果获取的任务为null，设置timedOut = true, 说明有线程是idle状态，继续for循环，即可回收idle现线程
             timedOut = true;
         } catch (InterruptedException retry) {
-            // 当调用shutDown()方法时，会中断核心线程数调用workQueue.take()阻塞的线程，然后继续
+            // 当调用shutDown()方法时，会中断核心线程数调用workQueue.take()阻塞的线程(这种情况是线程数未到达coreSize，此时有没有任务，就阻塞着)，然后继续
             // for循环，走到代码2w部分，进而回收线程，达到关闭线程池的目的。
             timedOut = false;
         }
     }
 }
 ```
+### 线程回收的场景
+- 线程池处于Runnig状态时：
+    - 当线程数大于核心线程数时，此时 timed 变量为true，此时会利用workQueue.poll(keepAliveTime, TimeUnit.NANOSECONDS)获取任务，当任务为null时，下一次循环就会回收线程
+- 线程池调用shutDown关闭时
+    - 向所有worker线程发出中断信号
+    - 当线程池处于空闲时，任务队列无任务时，并且线程数不大于coreSize，那么会调用workQueue.take()阻塞获取，此时就会被中断，进入catch代码块，此时进入下次循环，进入上述代码2，回收线程。
+    - 当线程池中还有待执行任务时，并不会停止线程，会调用workQueue.poll(keepAliveTime, TimeUnit.NANOSECONDS)，此方法的实现是响应中断，并且重置了中断位，继续执行队列中的任务。queue中任务执行完毕之后，代码2就会回收线程。
 
 ### processWorkerExit方法的分析：处理Worker线程回收
 ```java
